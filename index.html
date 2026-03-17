@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BEE WELL</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      text-align: center;
+      background: #111;
+      color: white;
+    }
+
+    .screen { display: none; padding: 20px; }
+    .active { display: block; }
+
+    .states {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      color: white;
+    }
+
+    .yellow { background: #f1c40f; }
+    .red { background: #e74c3c; }
+    .orange { background: #e67e22; }
+    .purple { background: #9b59b6; }
+    .blue { background: #3498db; }
+    .grey { background: #7f8c8d; }
+
+    .reset {
+      margin-top: 20px;
+      background: black;
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body>
+
+<div id="home" class="screen active">
+  <h1>BEE WELL</h1>
+  <p>What state are you in?</p>
+
+  <div class="states">
+    <button class="yellow" onclick="selectState('yellow')">Static</button>
+    <button class="red" onclick="selectState('red')">Heat</button>
+    <button class="orange" onclick="selectState('orange')">Shadow</button>
+    <button class="purple" onclick="selectState('purple')">Pulse</button>
+    <button class="blue" onclick="selectState('blue')">Gravity</button>
+    <button class="grey" onclick="selectState('grey')">Fog</button>
+  </div>
+
+  <button class="reset" onclick="goReset()">I'm not okay</button>
+</div>
+
+<div id="protocol" class="screen">
+  <h2 id="title"></h2>
+  <div id="steps"></div>
+  <button onclick="goHome()">Done</button>
+</div>
+
+<div id="reset" class="screen">
+  <h2>I'm not okay</h2>
+  <p>Cold water</p>
+  <p>Step outside</p>
+  <p>Write 1 word</p>
+  <p>Do one small action</p>
+  <button onclick="goHome()">Back</button>
+</div>
+
+<script>
+const data = {
+  yellow: ["Reduce input", "Close tabs", "Sit still"],
+  red: ["Stop talking", "Cold water", "Wait"],
+  orange: ["Look around", "Name 3 things", "Feet on ground"],
+  purple: ["Stop thinking", "Write it down", "Breathe"],
+  blue: ["Stand up", "Drink water", "Move one object"],
+  grey: ["Rest", "No pressure", "Small movement"]
+};
+
+function selectState(s) {
+  show("protocol");
+  document.getElementById("title").innerText = s.toUpperCase();
+
+  let steps = "";
+  data[s].forEach(x => steps += "<p>" + x + "</p>");
+  document.getElementById("steps").innerHTML = steps;
+}
+
+function goReset() { show("reset"); }
+function goHome() { show("home"); }
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+</script>
+
+</body>
+</html>
