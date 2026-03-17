@@ -124,6 +124,23 @@ const data = {
 
 function selectState(s) {
   show("protocol");
+
+  const messages = {
+    yellow: "You're overloaded.",
+    red: "You're overheating.",
+    orange: "You're not fully grounded.",
+    purple: "Your mind is spinning.",
+    blue: "You're stuck.",
+    grey: "You're shut down."
+  };
+
+  document.getElementById("title").innerText = messages[s];
+
+  let steps = "";
+  data[s].forEach(x => steps += "<p>" + x + "</p>");
+  document.getElementById("steps").innerHTML = steps;
+}
+  show("protocol");
   document.getElementById("title").innerText = s.toUpperCase();
 
   let steps = "";
