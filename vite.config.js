@@ -3,6 +3,5 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // This ensures the app looks in the right folder on GitHub
-  base: './', 
+  base: './', // The dot is CRITICAL. It tells the app "look right here for files."
 })
