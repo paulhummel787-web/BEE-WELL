@@ -1,161 +1,45 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>BEE WELL</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      text-align: center;
-      background: #111;
-      color: white;
-    }
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icon-192.png">
 
-    .screen { display: none; padding: 20px; }
-    .active { display: block; }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Bee Well: A stabilization-first neuro-affective tool." />
 
-    .states {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+    <title>Bee Well | Return</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
-    button {
-      padding: 15px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: none;
-      color: white;
-    }
+    <style>
+      /* Prevent text selection and long-press menus to keep it feeling like a native app */
+      body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        user-select: none;
+        background-color: #f9fafb;
+        overscroll-behavior-y: contain; /* Prevents "pull to refresh" which can be annoying */
+      }
+      #root {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
 
-    .yellow { background: #f1c40f; }
-    .red { background: #e74c3c; }
-    .orange { background: #e67e22; }
-    .purple { background: #9b59b6; }
-    .blue { background: #3498db; }
-    .grey { background: #7f8c8d; }
-
-    .reset {
-      margin-top: 20px;
-      background: black;
-      border: 2px solid white;
-    }
-  </style>
-</head>
-<body>
-
-<div id="home" class="screen active">
-  <h1>BEE WELL</h1>
-  <p>What state are you in?</p>
-
-  <div class="states">
-    <button class="yellow" onclick="selectState('yellow')">Static</button>
-    <button class="red" onclick="selectState('red')">Heat</button>
-    <button class="orange" onclick="selectState('orange')">Shadow</button>
-    <button class="purple" onclick="selectState('purple')">Pulse</button>
-    <button class="blue" onclick="selectState('blue')">Gravity</button>
-    <button class="grey" onclick="selectState('grey')">Fog</button>
-  </div>
-
-  <button class="reset" onclick="goReset()">I'm not okay</button>
-</div>
-
-<div id="protocol" class="screen">
-  <h2 id="title"></h2>
-  <div id="steps"></div>
-  <button onclick="goHome()">Done</button>
-</div>
-
-<div id="reset" class="screen">
-  <h2>I'm not okay</h2>
-  <p>Cold water</p>
-  <p>Step outside</p>
-  <p>Write 1 word</p>
-  <p>Do one small action</p>
-  <button onclick="goHome()">Back</button>
-</div>
-
-<script>
-const data = {
-  yellow: [
-    "Too much input",
-    "Close everything unnecessary",
-    "Sit still for 30 seconds"
-  ],
-  red: [
-    "You are overheating",
-    "Stop talking",
-    "Cold water on hands or face",
-    "Wait"
-  ],
-  orange: [
-    "You feel off / unreal",
-    "Look around slowly",
-    "Name 3 real objects",
-    "Press your feet into the ground"
-  ],
-  purple: [
-    "Your mind is racing",
-    "Do not solve anything",
-    "Write everything down",
-    "Breathe slower than feels natural"
-  ],
-  blue: [
-    "Low energy / stuck",
-    "Stand up",
-    "Drink water",
-    "Move one thing in your space"
-  ],
-  grey: [
-    "Shutdown state",
-    "No pressure to perform",
-    "Rest your body",
-    "Do one very small action"
-  ]
-};
-  yellow: ["Reduce input", "Close tabs", "Sit still"],
-  red: ["Stop talking", "Cold water", "Wait"],
-  orange: ["Look around", "Name 3 things", "Feet on ground"],
-  purple: ["Stop thinking", "Write it down", "Breathe"],
-  blue: ["Stand up", "Drink water", "Move one object"],
-  grey: ["Rest", "No pressure", "Small movement"]
-};
-
-function selectState(s) {
-  show("protocol");
-
-  const messages = {
-    yellow: "You're overloaded.",
-    red: "You're overheating.",
-    orange: "You're not fully grounded.",
-    purple: "Your mind is spinning.",
-    blue: "You're stuck.",
-    grey: "You're shut down."
-  };
-
-  document.getElementById("title").innerText = messages[s];
-
-  let steps = "";
-  data[s].forEach(x => steps += "<p>" + x + "</p>");
-  document.getElementById("steps").innerHTML = steps;
-}
-  show("protocol");
-  document.getElementById("title").innerText = s.toUpperCase();
-
-  let steps = "";
-  data[s].forEach(x => steps += "<p>" + x + "</p>");
-  document.getElementById("steps").innerHTML = steps;
-}
-
-function goReset() { show("reset"); }
-function goHome() { show("home"); }
-
-function show(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-</script>
-
-</body>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
