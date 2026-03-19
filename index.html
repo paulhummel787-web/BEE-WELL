@@ -5,50 +5,60 @@
   <meta charset="UTF-8">
   <title>Architect OS</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      color: white;
+      font-family: sans-serif;
+    }
+  </style>
+
 </head>
 
-<body style="background:#0a0a0a;color:white;font-family:sans-serif;">
+<body>
 
-<div id="app" style="padding:20px;"></div>
+<div id="app"></div>
 
-<script>
+<script type="module">
 
-// ===== BASIC STATE =====
-const state = {
-  wave: 70,
-  integrity: 50
-};
+try {
 
-// ===== SIMPLE UI =====
-function render() {
-  document.getElementById("app").innerHTML = `
-    <h1 style="font-size:24px;margin-bottom:20px;">Architect OS</h1>
+  // ===== IMPORT CORE FIRST =====
+  await import("./core/state.js");
 
-    <div style="background:#111;padding:20px;border-radius:10px;">
-      <p>Wave: ${Math.round(state.wave)}</p>
-      <p>Integrity: ${Math.round(state.integrity)}</p>
-    </div>
+  // ===== IMPORT VIEW (ONLY DASHBOARD FOR NOW) =====
+  const dashboard = await import("./views/dashboard.js");
 
-    <button onclick="panic()" style="margin-top:20px;padding:10px 20px;background:red;">
-      PANIC
-    </button>
-  `;
-}
+  // ===== IMPORT MODULES =====
+  await import("./modules/engine.js");
+  await import("./modules/hud.js");
+  await import("./modules/panic.js");
+  await import("./modules/anchor.js");
 
-// ===== ENGINE =====
-setInterval(() => {
-  state.wave += (Math.random() - 0.5) * 2;
+  // ===== INIT =====
+  window.initState();
+
+  // ===== RENDER LOOP (FORCED DASHBOARD) =====
+  function render() {
+    document.getElementById("app").innerHTML =
+      dashboard.renderDashboard();
+  }
+
   render();
-}, 1000);
+  setInterval(render, 1000);
 
-// ===== PANIC =====
-function panic() {
-  alert("RESET");
-  state.wave = 90;
+} catch (e) {
+
+  document.body.innerHTML = `
+    <div style="color:red;padding:20px;">
+      ERROR:<br>${e.message}
+    </div>
+  `;
+
+  console.error(e);
 }
-
-// ===== INIT =====
-render();
 
 </script>
 
