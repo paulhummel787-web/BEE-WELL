@@ -1,5 +1,4 @@
-// === GLOBAL STATE ===
-export const state = {
+const state = {
   wave: 70,
   integrity: 50,
   personality: "architect",
@@ -10,8 +9,7 @@ export const state = {
   }
 };
 
-// === INIT FUNCTION ===
-export function initState() {
+function initState() {
   const saved = localStorage.getItem("architect_state");
 
   if (saved) {
@@ -22,7 +20,6 @@ export function initState() {
     }
   }
 
-  // auto save
   setInterval(() => {
     localStorage.setItem(
       "architect_state",
@@ -31,5 +28,9 @@ export function initState() {
   }, 3000);
 }
 
-// expose for debug safety
+// 🔥 CRITICAL: attach to window (no import confusion)
+window.state = state;
 window.initState = initState;
+
+// also export for modules
+export { state, initState };
