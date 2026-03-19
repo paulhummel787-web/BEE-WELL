@@ -3,339 +3,219 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Pilot and the Storm</title>
+<title>Bee Well | The Pilot & The Storm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body{
-background:#080808;
-color:#f5f5f5;
-font-family:Inter,sans-serif;
-overflow-x:hidden;
-transition:all .6s ease;
+:root {
+    --bg:#050505;
+    --accent:#f59e0b;
+    --blue:#3b82f6;
 }
 
-/* BLOBS (your original vibe, improved) */
-.blob{
-position:fixed;
-border-radius:50%;
-filter:blur(140px);
-z-index:-1;
-animation:pulse 12s infinite ease-in-out;
+body {
+    background: radial-gradient(circle at top, #111, #000);
+    color: #f5f5f5;
+    font-family: Inter, sans-serif;
+    overflow-x:hidden;
 }
 
-@keyframes pulse{
-0%,100%{opacity:.25;transform:scale(1)}
-50%{opacity:.6;transform:scale(1.1)}
+/* glowing blobs */
+.blob {
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(140px);
+    opacity: 0.15;
+    z-index:-1;
+    animation: float 12s infinite ease-in-out;
+}
+.blob1 { background: orange; top:-200px; left:-200px; }
+.blob2 { background: blue; bottom:-200px; right:-200px; }
+
+@keyframes float {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-40px)}
 }
 
-/* GLASS */
-.glass{
-background:rgba(255,255,255,.04);
-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.08);
-transition:all .3s;
+/* cards */
+.card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:24px;
+    padding:20px;
+    transition:.3s;
+}
+.card:hover {
+    transform:translateY(-3px);
+    border-color:rgba(255,255,255,0.2);
 }
 
-/* HOVER LIFT */
-.glass:hover{
-transform:translateY(-4px);
-background:rgba(255,255,255,.06);
+/* button glow */
+.btn {
+    padding:12px 20px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    transition:.3s;
+}
+.btn:hover {
+    background:var(--accent);
+    color:#000;
 }
 
-/* FADE */
-.fade{animation:fade .5s ease}
-@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-/* SANCTUARY */
-body.sanctuary{
-font-family:serif;
-filter:sepia(.3) contrast(.9) saturate(.85);
+/* wave slider */
+input[type=range] {
+    width:100%;
 }
 
-/* BUTTON GLOW */
-.glow{
-box-shadow:0 0 20px rgba(245,158,11,.3);
+/* sanctuary mode */
+body.sanctuary {
+    filter: sepia(0.3) saturate(0.7);
+    font-family: Georgia, serif;
 }
 </style>
 </head>
 
 <body>
 
-<!-- BLOBS -->
-<div class="blob w-[500px] h-[500px] bg-amber-500/10 -top-40 -left-40"></div>
-<div class="blob w-[600px] h-[600px] bg-blue-500/10 -bottom-40 -right-40"></div>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
 
-<div class="max-w-xl mx-auto p-6 pb-28">
+<div class="max-w-xl mx-auto p-6 space-y-6">
 
-<header class="flex justify-between mb-6">
-<div id="clock" class="font-mono text-lg opacity-70"></div>
+    <!-- HEADER -->
+    <div class="flex justify-between items-center">
+        <div>
+            <div id="clock" class="text-3xl font-mono"></div>
+            <div class="text-xs opacity-40">SYSTEM ACTIVE</div>
+        </div>
 
-<div class="flex gap-2">
-<button onclick="Engine.panic()" class="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-full">PANIC</button>
-<button onclick="Engine.toggleSanctuary()" class="px-3 py-1 glass rounded-full text-xs">☯</button>
+        <div class="flex gap-2">
+            <button class="btn" onclick="toggleSanctuary()">Sanctuary</button>
+            <button class="btn bg-red-500/20" onclick="panic()">PANIC</button>
+        </div>
+    </div>
+
+    <!-- WAVE -->
+    <div class="card">
+        <div class="flex justify-between mb-3">
+            <span>Resiliency Wave</span>
+            <span id="waveVal">70%</span>
+        </div>
+        <input type="range" min="0" max="100" value="70" oninput="updateWave(this.value)">
+    </div>
+
+    <!-- MVS -->
+    <div class="card">
+        <div class="flex justify-between mb-3">
+            <span>MVS Protocol</span>
+            <button onclick="addTask()">+</button>
+        </div>
+        <div id="tasks"></div>
+    </div>
+
+    <!-- EXEC -->
+    <div class="card text-center">
+        <div id="timer" class="text-5xl font-mono mb-4">90</div>
+        <button class="btn" onclick="startTimer()">Start Flush</button>
+    </div>
+
+    <!-- SCRIPTURE -->
+    <div class="card">
+        <div class="text-xs opacity-40 mb-2">TRUTH ANCHOR</div>
+        <div id="scripture" class="italic"></div>
+    </div>
+
 </div>
-</header>
-
-<div id="view"></div>
-
-</div>
-
-<!-- NAV -->
-<nav class="fixed bottom-0 left-0 right-0 glass p-4 flex justify-around">
-<button onclick="Engine.route('base')">Base</button>
-<button onclick="Engine.route('exec')">Exec</button>
-<button onclick="Engine.route('doctrine')">Doctrine</button>
-<button onclick="Engine.route('logs')">Logs</button>
-</nav>
 
 <script>
 
-/* =========================
-   ENGINE
-========================= */
+/* STATE */
+let wave = 70
+let tasks = ["Drink water","Open workspace"]
+let timer = 90
+let running = false
 
-const Engine = {
+/* CLOCK */
+setInterval(()=>{
+    document.getElementById("clock").innerText =
+        new Date().toLocaleTimeString()
+},1000)
 
-state:{
-tab:'base',
-wave:70,
-logs:[],
-sanctuary:false,
-chapter:1
-},
-
-init(){
-this.tick()
-this.render()
-setInterval(()=>this.tick(),1000)
-},
-
-tick(){
-document.getElementById('clock').innerText =
-new Date().toLocaleTimeString()
-},
-
-route(t){
-this.state.tab=t
-this.render()
-},
-
-render(){
-const v=document.getElementById('view')
-
-if(this.state.sanctuary){
-v.innerHTML=Sanctuary.render()
-return
+/* WAVE */
+function updateWave(val){
+    wave = val
+    document.getElementById("waveVal").innerText = val+"%"
 }
 
-v.innerHTML=Modules[this.state.tab]()
-},
+/* TASKS */
+function renderTasks(){
+    document.getElementById("tasks").innerHTML =
+        tasks.map((t,i)=>`
+        <div class="flex justify-between py-2 border-b border-white/10">
+            <span>${t}</span>
+            <button onclick="removeTask(${i})">✓</button>
+        </div>
+        `).join("")
+}
+renderTasks()
 
-log(msg){
-this.state.logs.unshift(msg)
-},
-
-panic(){
-this.log("PANIC")
-Anchor.card("You are not alone. God is with you.")
-},
-
-toggleSanctuary(){
-this.state.sanctuary=!this.state.sanctuary
-document.body.classList.toggle('sanctuary')
-this.render()
+function addTask(){
+    const t = prompt("2-minute step:")
+    if(t){ tasks.push(t); renderTasks() }
+}
+function removeTask(i){
+    tasks.splice(i,1)
+    renderTasks()
 }
 
+/* TIMER */
+function startTimer(){
+    if(running) return
+    running = true
+
+    const interval = setInterval(()=>{
+        timer--
+        document.getElementById("timer").innerText = timer
+
+        if(timer<=0){
+            clearInterval(interval)
+            timer = 90
+            running=false
+            alert("Reset complete")
+        }
+    },1000)
 }
 
-/* =========================
-   MODULES
-========================= */
-
-const Modules = {
-
-base(){
-return `
-<div class="space-y-6 fade">
-
-<div class="glass p-5 rounded-2xl glow">
-<p class="text-xs opacity-40 mb-1">Resiliency Wave</p>
-<p class="text-2xl font-mono mb-3">${Engine.state.wave}%</p>
-
-<input type="range" min="0" max="100" value="${Engine.state.wave}"
-oninput="Engine.state.wave=this.value;State.react()"
-class="w-full">
-</div>
-
-<div class="grid grid-cols-2 gap-3">
-<button onclick="Stillness.activate()" class="glass p-4 rounded-xl text-sm">Be Still</button>
-<button onclick="Anchor.strength()" class="glass p-4 rounded-xl text-sm">Strength</button>
-</div>
-
-</div>`
-},
-
-exec(){
-return `
-<div class="space-y-4 fade text-center">
-
-<div class="glass p-4 rounded-xl">
-<p class="text-sm mb-2">What do you need?</p>
-
-<div class="flex justify-center gap-3">
-<button onclick="Anchor.strength()" class="text-xs">Strength</button>
-<button onclick="Anchor.peace()" class="text-xs">Peace</button>
-</div>
-</div>
-
-</div>`
-},
-
-doctrine(){
-return `
-<div class="space-y-3 fade">
-
-${Doctrine.chapters.map(c=>`
-<div onclick="UI.read(${c.id})"
-class="glass p-3 rounded-xl cursor-pointer">
-${c.id}. ${c.title}
-</div>`).join('')}
-
-</div>`
-},
-
-logs(){
-return `
-<div class="glass p-4 text-xs fade space-y-1">
-${Engine.state.logs.map(l=>`<div>${l}</div>`).join('')}
-</div>`
+/* PANIC */
+function panic(){
+    alert("Breathe. Cold water. One step.")
 }
 
+/* SANCTUARY */
+function toggleSanctuary(){
+    document.body.classList.toggle("sanctuary")
+    nextScripture()
 }
 
-/* =========================
-   DOCTRINE
-========================= */
-
-const Doctrine={
-chapters:[
-{ id:1,title:"The Storm Is Real",body:"The storm is real, but it is not your end."},
-{ id:2,title:"You Are Not the Storm",body:"You are the observer, not the chaos."},
-{ id:3,title:"Noise Is Not Truth",body:"Loud does not mean true."},
-{ id:4,title:"The Body Remembers",body:"Your system holds memory."},
-{ id:5,title:"Fragmentation",body:"You are not lost."},
-{ id:6,title:"The Lie",body:"You are not a mistake."},
-{ id:7,title:"Heat",body:"Intensity distorts reality."},
-{ id:8,title:"Collapse",body:"Stabilize."},
-{ id:9,title:"Control",body:"Control is not safety."},
-{ id:10,title:"Abandonment",body:"You are not alone."},
-
-{ id:11,title:"Pilot",body:"There is awareness in you."},
-{ id:12,title:"Identity",body:"You are given identity."},
-{ id:13,title:"Made",body:"You are intentional."},
-{ id:14,title:"Carried",body:"You are held."},
-{ id:15,title:"Step",body:"One step is enough."},
-
-{ id:16,title:"Strength",body:"Strength is given."},
-{ id:17,title:"Weakness",body:"Power enters here."},
-{ id:18,title:"Peace",body:"Peace guards your mind."},
-
-{ id:19,title:"Stillness",body:"Stillness is strength."},
-{ id:20,title:"Clarity",body:"Truth comes quietly."},
-{ id:21,title:"Restart",body:"You can begin again."},
-{ id:22,title:"Rebuild",body:"Nothing is wasted."},
-{ id:23,title:"Stable",body:"Stability grows slowly."},
-
-{ id:24,title:"Trust",body:"Growth is unseen."},
-{ id:25,title:"Not Alone",body:"You never were alone."},
-{ id:26,title:"Victory",body:"The storm does not win."}
+/* SCRIPTURES */
+const scriptures = [
+"I am fearfully and wonderfully made — Psalm 139:14",
+"I am chosen — Ephesians 1:4",
+"I am never alone — Deuteronomy 31:8",
+"I have a sound mind — 2 Timothy 1:7",
+"I have strength for this step — Philippians 4:13"
 ]
+
+function nextScripture(){
+    const s = scriptures[Math.floor(Math.random()*scriptures.length)]
+    document.getElementById("scripture").innerText = s
 }
-
-/* =========================
-   UI READER
-========================= */
-
-const UI={
-read(id){
-const c=Doctrine.chapters.find(x=>x.id===id)
-
-const o=document.createElement("div")
-o.className="fixed inset-0 bg-black/90 p-6 z-50 fade"
-
-o.innerHTML=`
-<button onclick="this.parentElement.remove()" class="text-xs opacity-40">Back</button>
-<h1 class="text-xl mt-4">${c.title}</h1>
-<p class="mt-4 opacity-80">${c.body}</p>
-`
-
-document.body.appendChild(o)
-}
-}
-
-/* =========================
-   ANCHORS (UPGRADED UI)
-========================= */
-
-const Anchor={
-
-card(text){
-const c=document.createElement("div")
-c.className="fixed bottom-24 left-1/2 -translate-x-1/2 glass p-4 rounded-xl fade"
-c.innerText=text
-document.body.appendChild(c)
-setTimeout(()=>c.remove(),5000)
-},
-
-strength(){
-this.card("I can do all things through Christ.")
-},
-
-peace(){
-this.card("The peace of God guards my mind.")
-}
-
-}
-
-/* =========================
-   STILLNESS
-========================= */
-
-const Stillness={
-activate(){
-const o=document.createElement("div")
-o.className="fixed inset-0 bg-black flex items-center justify-center z-50 fade"
-
-o.innerHTML=`
-<div class="text-center">
-<p class="text-lg italic mb-4">"Be still, and know that I am God."</p>
-<button onclick="this.parentElement.parentElement.remove()" class="text-xs opacity-40">Return</button>
-</div>
-`
-
-document.body.appendChild(o)
-}
-}
-
-/* =========================
-   STATE REACTION
-========================= */
-
-const State={
-react(){
-if(Engine.state.wave < 30){
-Anchor.strength()
-}
-if(Engine.state.wave < 15){
-Anchor.card("You are held. You are not alone.")
-}
-}
-}
-
-/* INIT */
-Engine.init()
+nextScripture()
 
 </script>
 
