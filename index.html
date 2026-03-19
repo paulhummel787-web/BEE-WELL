@@ -7,30 +7,279 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Architect OS — Bee Well</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
 body {
-    background: #0a0a0a;
-    color: white;
+    background:#0a0a0a;
+    color:white;
     font-family: system-ui;
+    transition: all .6s ease;
 }
 
+/* SANCTUARY MODE */
+body.sanctuary {
+    background:#050508;
+    filter:saturate(.8) contrast(.9);
+}
+
+/* GLASS UI */
 .glass {
     background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    border:1px solid rgba(255,255,255,0.08);
 }
 
-.chapter {
-    display: none;
+/* NAV */
+.nav-btn.active {
+    opacity:1;
+    color:#818cf8;
 }
 
-.chapter.active {
-    display: block;
+.nav-btn {
+    opacity:.4;
+    transition:.2s;
 }
 
-.anchor {
-    border-left: 3px solid #6366f1;
-    padding-left: 10px;
+/* FADE */
+.fade {
+    animation: fade .3s ease;
 }
+
+@keyframes fade {
+    from {opacity:0; transform:translateY(6px)}
+    to {opacity:1}
+}
+
+/* TERMINAL */
+.terminal {
+    background:black;
+    color:#0f0;
+    font-family: monospace;
+}
+
+</style>
+</head>
+
+<body class="p-4">
+
+<!-- NAV -->
+<div class="flex gap-4 mb-4 text-xs uppercase font-bold">
+    <button class="nav-btn active" onclick="switchTab('base')">Base</button>
+    <button class="nav-btn" onclick="switchTab('book')">Book</button>
+    <button class="nav-btn" onclick="switchTab('anchor')">Anchors</button>
+    <button class="nav-btn" onclick="switchTab('terminal')">Terminal</button>
+</div>
+
+<!-- MAIN -->
+<div id="view" class="fade"></div>
+
+<script>
+
+/* =========================
+STATE
+========================= */
+const state = {
+    tab:'base',
+    wave:70,
+    integrity:50,
+    sanctuary:false,
+    logs:[]
+};
+
+/* =========================
+BOOK (33 chapters)
+========================= */
+const BOOK = [
+"Symptom Soup — everything overlaps.",
+"Shutdown is protection.",
+"Pilot vs Architect.",
+"Color over thinking.",
+"Fix state first.",
+
+"90 second emotions.",
+"Time blindness.",
+"Habit stacking.",
+"Fueling logic.",
+"Fire kit.",
+
+"Anxiety = simulation.",
+"ADHD scatter.",
+"Emotional heat.",
+"CPTSD shadow.",
+"Depression gravity.",
+
+"Dissociation fog.",
+"MVS = one step.",
+"10/20 brakes.",
+"Memory shield.",
+
+"Sanctuary design.",
+"Social governor.",
+"Sensory override.",
+"Report color.",
+
+"Sleep docking.",
+"Medication tracking.",
+"Movement reset.",
+"Daily wins.",
+
+"Strategic drop.",
+"Chase the fox.",
+"Bodyguards.",
+"Identity anchors.",
+"Support grid.",
+"Architect creed."
+];
+
+/* =========================
+SCRIPTURE ENGINE
+========================= */
+const ANCHORS = [
+["I am a mistake","Psalm 139:14","I am fearfully made"],
+["I am unwanted","Ephesians 1:4","I am chosen"],
+["I am alone","Deuteronomy 31:8","God is ahead of me"],
+["I am overwhelmed","2 Tim 1:7","I have a sound mind"],
+["I can't","Phil 4:13","I can take one step"]
+];
+
+let anchorIndex=0;
+
+/* =========================
+RENDER
+========================= */
+function switchTab(tab){
+    state.tab=tab;
+
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+    render();
+}
+
+function render(){
+    const v=document.getElementById('view');
+
+    if(state.tab==='base'){
+        v.innerHTML=`
+        <div class="space-y-4 fade">
+
+            <div class="glass p-4 rounded-xl">
+                <p class="text-xs opacity-50">Wave</p>
+                <p class="text-xl">${state.wave}%</p>
+            </div>
+
+            <div class="glass p-4 rounded-xl">
+                <p class="text-xs opacity-50">Integrity</p>
+                <p class="text-xl">${state.integrity}%</p>
+            </div>
+
+            <button onclick="toggleSanctuary()" class="glass p-3 rounded-xl w-full">
+                ${state.sanctuary?'Exit Sanctuary':'Enter Sanctuary'}
+            </button>
+
+        </div>`;
+    }
+
+    if(state.tab==='book'){
+        v.innerHTML=`
+        <div class="space-y-2 fade">
+            ${BOOK.map((c,i)=>`
+                <div class="glass p-3 rounded-xl text-sm">
+                    <b>Chapter ${i+1}</b><br>${c}
+                </div>
+            `).join('')}
+        </div>`;
+    }
+
+    if(state.tab==='anchor'){
+        const a=ANCHORS[anchorIndex];
+        v.innerHTML=`
+        <div class="glass p-6 rounded-xl fade">
+            <p class="opacity-40 text-xs">Lie</p>
+            <p>${a[0]}</p>
+
+            <p class="opacity-40 text-xs mt-3">${a[1]}</p>
+            <p>${a[2]}</p>
+
+            <button onclick="nextAnchor()" class="mt-4 px-4 py-2 bg-indigo-500 rounded">
+                Next
+            </button>
+        </div>`;
+    }
+
+    if(state.tab==='terminal'){
+        v.innerHTML=`
+        <div class="terminal p-4 rounded-xl">
+            <div id="output" class="h-40 overflow-y-auto text-xs"></div>
+            <input id="cmd" class="w-full mt-2 bg-black outline-none" placeholder="/help"
+            onkeydown="handleCmd(event)">
+        </div>`;
+    }
+}
+
+/* =========================
+FUNCTIONS
+========================= */
+
+function toggleSanctuary(){
+    state.sanctuary=!state.sanctuary;
+    document.body.classList.toggle('sanctuary');
+}
+
+function nextAnchor(){
+    anchorIndex=(anchorIndex+1)%ANCHORS.length;
+    render();
+}
+
+/* TERMINAL */
+function handleCmd(e){
+    if(e.key==="Enter"){
+        const val=e.target.value;
+        log("> "+val);
+
+        if(val==="/help"){
+            log("/wave /anchor /sanctuary");
+        }
+
+        if(val.startsWith("/wave")){
+            const num=parseInt(val.split(" ")[1]);
+            if(num) state.wave=num;
+            render();
+        }
+
+        if(val==="/anchor"){
+            switchTab('anchor');
+        }
+
+        if(val==="/sanctuary"){
+            toggleSanctuary();
+        }
+
+        e.target.value="";
+    }
+}
+
+function log(msg){
+    const out=document.getElementById('output');
+    if(!out) return;
+    out.innerHTML+=`<div>${msg}</div>`;
+    out.scrollTop=out.scrollHeight;
+}
+
+/* INIT */
+render();
+
+</script>
+
+</body>
+</html>
 </style>
 </head>
 
