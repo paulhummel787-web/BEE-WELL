@@ -30,6 +30,10 @@ export function renderLayout(content) {
           Anchor
         </button>
 
+        <button onclick="openAnalytics()" class="text-green-400">
+          Data
+        </button>
+
         <button onclick="triggerPanic()" class="text-red-500 font-bold">
           PANIC
         </button>
