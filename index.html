@@ -1,78 +1,40 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Architect OS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0a;
-      color: white;
-      font-family: sans-serif;
-    }
-  </style>
-
 </head>
-
-<body>
-
-<!-- ✅ THIS MUST EXIST BEFORE SCRIPT -->
+<body style="margin:0;background:#0a0a0a;color:white;">
 
 <div id="app"></div>
 
 <script type="module">
 
-try {
+import { initState } from "./core/state.js";
+import { renderLayout, getTab } from "./ui/layout.js";
 
-  await import("./core/state.js");
+import { renderDashboard } from "./views/dashboard.js";
+import { renderMVS } from "./views/mvs.js";
+import { renderJournal } from "./views/journal.js";
 
-  const layout = await import("./ui/layout.js");
+import "./modules/engine.js";
 
-  const dashboard = await import("./views/dashboard.js");
-  const mvs = await import("./views/mvs.js");
-  const journal = await import("./views/journal.js");
+initState();
 
-  await import("./modules/engine.js");
-  await import("./modules/hud.js");
-  await import("./modules/panic.js");
-  await import("./modules/anchor.js");
+function render() {
 
-  window.initState();
+  const tab = getTab();
+  let view = "";
 
-  function render() {
-    const tab = layout.getTab();
+  if (tab === "dashboard") view = renderDashboard();
+  if (tab === "mvs") view = renderMVS();
+  if (tab === "journal") view = renderJournal();
 
-    let view = "";
-
-    if (tab === "dashboard") view = dashboard.renderDashboard();
-    if (tab === "mvs") view = mvs.renderMVS();
-    if (tab === "journal") view = journal.renderJournal();
-
-    const app = document.getElementById("app");
-
-    if (!app) {
-      throw new Error("App container missing");
-    }
-
-    app.innerHTML = layout.renderLayout(view);
-  }
-
-  render();
-  setInterval(render, 1000);
-
-} catch (e) {
-
-  document.body.innerHTML = `
-    <div style="color:red;padding:20px;">
-      ERROR:<br>${e.message}
-    </div>
-  `;
-
-  console.error(e);
+  document.getElementById("app").innerHTML =
+    renderLayout(view);
 }
+
+render();
+setInterval(render, 1000);
 
 </script>
 
