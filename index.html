@@ -44,9 +44,10 @@
 
 <script type="module">
 
-// ===== IMPORTS =====
+// ===== UI =====
 import { renderLayout, getTab } from "./ui/layout.js";
 
+// ===== VIEWS =====
 import { renderDashboard } from "./views/dashboard.js";
 import { renderMVS } from "./views/mvs.js";
 import { renderFox } from "./views/fox.js";
@@ -54,15 +55,18 @@ import { renderStats } from "./views/stats.js";
 import { renderTerminal } from "./views/terminal.js";
 import { renderJournal } from "./views/journal.js";
 
-// load core + modules (they self-init via window)
+// ===== CORE =====
 await import("./core/state.js");
 
+// ===== MODULES =====
 await import("./modules/engine.js");
 await import("./modules/hud.js");
 await import("./modules/analytics.js");
 await import("./modules/aiCoach.js");
 await import("./modules/predictor.js");
 await import("./modules/missions.js");
+await import("./modules/panic.js");
+await import("./modules/anchor.js");
 
 // ===== INIT =====
 window.initState();
@@ -87,7 +91,7 @@ window.renderApp = function () {
 // ===== FIRST LOAD =====
 window.renderApp();
 
-// ===== AUTO REFRESH LOOP =====
+// ===== LOOP =====
 setInterval(() => {
   window.renderApp();
 }, 1500);
