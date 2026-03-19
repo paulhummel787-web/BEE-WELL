@@ -13,6 +13,7 @@ export function renderLayout(inner) {
       ${tabBtn("fox")}
       ${tabBtn("stats")}
       ${tabBtn("terminal")}
+      ${tabBtn("journal")}
     </div>
 
     <div class="border border-white/10 p-4 rounded">
