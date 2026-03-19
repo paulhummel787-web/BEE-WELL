@@ -6,7 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Architect OS</title>
 
+  <!-- PWA -->
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Tailwind -->
+
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -15,7 +24,7 @@
       background: #0a0a0a;
       color: white;
       font-family: system-ui, sans-serif;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     .glass {
@@ -38,15 +47,23 @@
 
 </head>
 
-<body class="p-6">
+<body>
+
+  <!-- ROOT -->
 
   <div id="app"></div>
 
+  <!-- APP -->
+
   <script type="module">
 
+    // === CORE ===
     import { initState } from "./core/state.js";
+
+    // === UI ===
     import { renderLayout, getTab } from "./ui/layout.js";
 
+    // === VIEWS ===
     import { renderDashboard } from "./views/dashboard.js";
     import { renderMVS } from "./views/mvs.js";
     import { renderFox } from "./views/fox.js";
@@ -54,6 +71,7 @@
     import { renderTerminal } from "./views/terminal.js";
     import { renderJournal } from "./views/journal.js";
 
+    // === MODULES ===
     import "./modules/engine.js";
     import "./modules/hud.js";
     import "./modules/analytics.js";
@@ -61,8 +79,10 @@
     import "./modules/predictor.js";
     import "./modules/missions.js";
 
+    // === INIT ===
     initState();
 
+    // === ROUTER ===
     window.renderApp = function () {
       const tab = getTab();
 
@@ -75,15 +95,26 @@
       if (tab === "terminal") view = renderTerminal();
       if (tab === "journal") view = renderJournal();
 
-      document.getElementById("app").innerHTML = renderLayout(view);
+      document.getElementById("app").innerHTML =
+        renderLayout(view);
     };
 
+    // === FIRST RENDER ===
     window.renderApp();
 
+    // === SYSTEM LOOP ===
     setInterval(() => {
       window.renderApp();
     }, 1000);
 
+  </script>
+
+  <!-- SERVICE WORKER -->
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./service-worker.js");
+    }
   </script>
 
 </body>
