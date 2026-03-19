@@ -22,38 +22,23 @@ function getLabel() {
   return "OVERLOAD";
 }
 
-// ✅ MAIN RENDER
-function renderDashboard() {
+export function renderDashboard() {
   const color = getColor();
 
   return `
-    <div style="padding:20px; max-width:600px; margin:auto;">
+    <div style="text-align:center;">
 
-      <div style="
-        background:#111;
-        border-radius:16px;
-        padding:30px;
-        text-align:center;
+      <h1 style="
+        font-size:40px;
+        color:${color};
+        transition:all .3s ease;
       ">
+        ${getLabel()}
+      </h1>
 
-        <h1 style="
-          font-size:40px;
-          color:${color};
-          transition: all 0.4s ease;
-        ">
-          ${getLabel()}
-        </h1>
-
-        <p>System active</p>
-
-      </div>
+      <p>Wave: ${Math.round(state.wave)}</p>
+      <p>Integrity: ${Math.round(state.integrity)}</p>
 
     </div>
   `;
 }
-
-// ✅ FORCE GLOBAL (NO IMPORT ISSUES EVER AGAIN)
-window.renderDashboard = renderDashboard;
-
-// optional export (won’t break anything)
-export { renderDashboard };
