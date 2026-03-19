@@ -6,57 +6,101 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Architect OS</title>
 
+  <!-- PWA -->
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+
+  <!-- Tailwind -->
+
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background: #0a0a0a;
+      color: white;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+    }
+  </style>
 
 </head>
 
-<body style="background:black; color:white; padding:20px; font-family:monospace;">
+<body>
 
-  <h1>Architect OS Debug</h1>
-  <div id="log"></div>
+<div id="app"></div>
 
-  <script type="module">
+<script type="module">
 
-    const log = (msg) => {
-      document.getElementById("log").innerHTML += "<div>" + msg + "</div>";
-      console.log(msg);
-    };
+// ===== IMPORTS =====
+import { renderLayout, getTab } from "./ui/layout.js";
 
-    try {
-      log("Loading state...");
-      const stateModule = await import("./core/state.js");
+import { renderDashboard } from "./views/dashboard.js";
+import { renderMVS } from "./views/mvs.js";
+import { renderFox } from "./views/fox.js";
+import { renderStats } from "./views/stats.js";
+import { renderTerminal } from "./views/terminal.js";
+import { renderJournal } from "./views/journal.js";
 
-      log("Loading layout...");
-      const layoutModule = await import("./ui/layout.js");
+// load core + modules (they self-init via window)
+await import("./core/state.js");
 
-      log("Loading views...");
-      await import("./views/dashboard.js");
-      await import("./views/mvs.js");
-      await import("./views/fox.js");
-      await import("./views/stats.js");
-      await import("./views/terminal.js");
-      await import("./views/journal.js");
+await import("./modules/engine.js");
+await import("./modules/hud.js");
+await import("./modules/analytics.js");
+await import("./modules/aiCoach.js");
+await import("./modules/predictor.js");
+await import("./modules/missions.js");
 
-      log("Loading modules...");
-      await import("./modules/engine.js");
-      await import("./modules/hud.js");
-      await import("./modules/analytics.js");
-      await import("./modules/aiCoach.js");
-      await import("./modules/predictor.js");
-      await import("./modules/missions.js");
+// ===== INIT =====
+window.initState();
 
-      log("INIT...");
-      stateModule.initState();
+// ===== ROUTER =====
+window.renderApp = function () {
+  const tab = getTab();
 
-      log("SUCCESS — SYSTEM LOADED");
+  let view = "";
 
-    } catch (e) {
-      log("ERROR:");
-      log(e.message);
-      console.error(e);
-    }
+  if (tab === "dashboard") view = renderDashboard();
+  if (tab === "mvs") view = renderMVS();
+  if (tab === "fox") view = renderFox();
+  if (tab === "stats") view = renderStats();
+  if (tab === "terminal") view = renderTerminal();
+  if (tab === "journal") view = renderJournal();
 
-  </script>
+  document.getElementById("app").innerHTML =
+    renderLayout(view);
+};
+
+// ===== FIRST LOAD =====
+window.renderApp();
+
+// ===== AUTO REFRESH LOOP =====
+setInterval(() => {
+  window.renderApp();
+}, 1500);
+
+</script>
+
+<!-- SERVICE WORKER -->
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./service-worker.js");
+}
+</script>
 
 </body>
 </html>
