@@ -26,6 +26,10 @@ export function renderLayout(content) {
           Book
         </button>
 
+        <button onclick="openAnchor()" class="text-purple-400">
+          Anchor
+        </button>
+
       </div>
 
       <div id="view">
