@@ -24,7 +24,8 @@ window.renderApp = function () {
 
 function dashboard() {
   return `
-    <div class="space-y-4">
+    <div class="space-y-4 glow ${state.color} energy">
+
       <div>Wave: ${Math.round(state.wave)} (${state.mode})</div>
       <div>Integrity: ${Math.round(state.integrity)}</div>
       <div>Pressure: ${Math.round(state.pressure)}</div>
@@ -39,6 +40,7 @@ function dashboard() {
       <button onclick="window.startAudit()" class="bg-white text-black px-3 py-1">
         Run Audit
       </button>
+
     </div>
   `;
 }
@@ -61,7 +63,7 @@ function mvsView() {
 
 function foxView() {
   return `
-    <div class="space-y-4">
+    <div class="space-y-4 glow ${state.color}">
 
       <input 
         value="${state.daily?.fox || ""}" 
