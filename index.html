@@ -2,426 +2,201 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Bee Well | The Architect OS</title>
+<title>The Pilot and the Storm</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Playfair+Display&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-:root {
-    --bg:#0a0a0a;
-    --panel:#111;
-    --accent:#facc15;
-    --text:#eee;
-}
-
 body {
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:Inter;
-    overflow:hidden;
+    background: #0a0a0a;
+    color: white;
+    font-family: system-ui;
 }
 
-/* Layout */
-#app {
-    display:flex;
-    flex-direction:column;
-    height:100vh;
+.glass {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
-#main {
-    flex:1;
-    overflow-y:auto;
-    padding:20px;
-}
-
-/* NAV */
-.nav {
-    display:flex;
-    justify-content:space-around;
-    border-top:1px solid #222;
-    padding:10px;
-}
-
-.nav button {
-    background:none;
-    border:none;
-    color:#aaa;
-    font-size:11px;
-}
-
-.nav button.active {
-    color:var(--accent);
-}
-
-/* CARDS */
-.card {
-    background:var(--panel);
-    border-radius:20px;
-    padding:20px;
-    margin-bottom:15px;
-    transition:.3s;
-}
-
-.card:hover {
-    transform:scale(1.02);
-}
-
-/* BOOK */
 .chapter {
-    font-family:"Playfair Display";
-    line-height:1.6;
-    font-size:15px;
+    display: none;
 }
 
-.chapter h2 {
-    color:var(--accent);
+.chapter.active {
+    display: block;
 }
 
-/* SMOOTH */
-.fade {
-    animation:fade .4s ease;
-}
-
-@keyframes fade {
-    from{opacity:0; transform:translateY(10px);}
-    to{opacity:1;}
+.anchor {
+    border-left: 3px solid #6366f1;
+    padding-left: 10px;
 }
 </style>
 </head>
 
-<body>
+<body class="p-6">
 
-<div id="app">
-    <div id="main"></div>
+<h1 class="text-2xl font-bold mb-6">The Pilot and the Storm</h1>
 
-    <div class="nav">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard">BASE</button>
-        <button onclick="switchTab('sanctuary')" id="nav-sanctuary">SANCTUARY</button>
-        <button onclick="switchTab('book')" id="nav-book">BOOK</button>
-        <button onclick="switchTab('system')" id="nav-system">SYSTEM</button>
+<div class="grid grid-cols-4 gap-4">
+
+<!-- SIDEBAR -->
+<div class="col-span-1 glass p-4 rounded-xl h-[80vh] overflow-y-auto">
+    <h2 class="text-xs uppercase opacity-50 mb-3">Chapters</h2>
+    <div id="chapter-list"></div>
+</div>
+
+<!-- MAIN VIEW -->
+<div class="col-span-3 space-y-6">
+
+    <div id="chapter-view" class="glass p-6 rounded-xl"></div>
+
+    <!-- SCRIPTURE ENGINE -->
+    <div class="glass p-6 rounded-xl">
+        <h2 class="text-xs uppercase opacity-50 mb-4">Identity Anchors</h2>
+        <button onclick="nextAnchor()" class="px-4 py-2 bg-indigo-500 rounded">Next Anchor</button>
+
+        <div id="anchor-display" class="mt-4 space-y-2"></div>
     </div>
+
+</div>
+
 </div>
 
 <script>
 
-/* ================= STATE ================= */
-
-const state = {
-    tab:'dashboard',
-    chapter:0
-};
-
-/* ================= BOOK DATA ================= */
+/* =========================
+   📖 BOOK ENGINE (33 CHAPTERS)
+========================= */
 
 const BOOK = [
-    /* ================= SCRIPTURE + IDENTITY ENGINE ================= */
+{title:"1. The Landscape of the Storm", content:`The complex mind lives in a Symptom Soup...`},
+{title:"2. The Anatomy of Shutdown", content:`Shutdown is not failure...`},
+{title:"3. The Architect vs The Pilot", content:`Two roles govern the system...`},
+{title:"4. Colour Frequencies", content:`Use colour instead of analysis...`},
+{title:"5. Prime Directive", content:`Fix the state, then the step.`},
 
-const ANCHORS = {
+{title:"6. The 90-Second Rule", content:`Emotions last 90 seconds chemically.`},
+{title:"7. Time Blindness", content:`Time must be externalized.`},
+{title:"8. Habit Stacking", content:`Attach new habits to old ones.`},
+{title:"9. Fueling Logic", content:`Body dictates mind.`},
+{title:"10. Fire Kit", content:`Pre-built tools for crisis.`},
 
-identity: [
+{title:"11. Anxiety Pulse", content:`Anxiety simulates danger.`},
+{title:"12. ADHD Scatter", content:`Attention cannot land.`},
+{title:"13. Emotional Heat", content:`Feelings hit instantly.`},
+{title:"14. CPTSD Shadow", content:`Past informs present threat.`},
+{title:"15. Depression Gravity", content:`Energy collapses inward.`},
+
+{title:"16. Dissociation Fog", content:`System disconnects.`},
+{title:"17. MVS Protocol", content:`Move one pebble.`},
+{title:"18. 10/20 Brakes", content:`Interrupt loops physically.`},
+{title:"19. Memory Shield", content:`Externalize all thoughts.`},
+
+{title:"20. Sanctuary Design", content:`Reduce sensory noise.`},
+{title:"21. Social Governor", content:`Use boundaries.`},
+{title:"22. Sensory Override", content:`Use body to reset brain.`},
+{title:"23. Reporting Visibility", content:`Use color instead of explanation.`},
+
+{title:"24. Sleep Docking", content:`Sleep is system repair.`},
+{title:"25. Medication Ledger", content:`Track signal vs noise.`},
+{title:"26. Metabolic Reset", content:`Move body to reset state.`},
+{title:"27. Daily Ledger", content:`Record wins.`},
+
+{title:"28. Strategic Filter", content:`Drop non-essential tasks.`},
+{title:"29. Chase the Fox", content:`Focus on one high-impact task.`},
+{title:"30. Bodyguards", content:`Protective patterns exist.`},
+{title:"31. Identity Anchors", content:`Truth over feelings.`},
+{title:"32. Support Grid", content:`You need people.`},
+{title:"33. The Architect’s Creed", content:`You are built to navigate.`}
+];
+
+
+/* =========================
+   🧠 SCRIPTURE ENGINE
+========================= */
+
+const ANCHORS = [
 {
 lie:"I am a mistake",
-verse:"Psalm 139:14",
-truth:"Fearfully and wonderfully made",
-affirmation:"I am not a mistake. I am intentionally designed."
+truth:"Psalm 139:14",
+affirmation:"I am fearfully and wonderfully made."
 },
 {
 lie:"I am unwanted",
-verse:"Ephesians 1:4",
-truth:"Chosen before the foundation",
-affirmation:"I am chosen. I am wanted."
+truth:"Ephesians 1:4",
+affirmation:"I am chosen."
 },
 {
-lie:"I am a burden",
-verse:"Psalm 55:22",
-truth:"God carries my weight",
-affirmation:"I am carried. I am not too much."
+lie:"I am alone",
+truth:"Deuteronomy 31:8",
+affirmation:"God is already in my tomorrow."
 },
 {
-lie:"I am broken",
-verse:"2 Corinthians 5:17",
-truth:"New creation",
-affirmation:"I am being made new."
+lie:"I am overwhelmed",
+truth:"2 Timothy 1:7",
+affirmation:"I have a sound mind."
 },
 {
-lie:"I am unloved",
-verse:"Romans 8:38-39",
-truth:"Nothing separates me from love",
-affirmation:"I cannot be separated from love."
-}
-],
-
-safety: [
-{
-verse:"Deuteronomy 31:8",
-affirmation:"I am never alone. God is already in my tomorrow."
-},
-{
-verse:"Psalm 34:18",
-affirmation:"God is closest when I feel crushed."
-},
-{
-verse:"Isaiah 43:1",
-affirmation:"I am claimed. I belong."
-},
-{
-verse:"Psalm 27:10",
-affirmation:"Even if people fail me, I am still held."
-}
-],
-
-peace: [
-{
-verse:"2 Timothy 1:7",
-affirmation:"I reject fear. I have a sound mind."
-},
-{
-verse:"Isaiah 26:3",
-affirmation:"My mind can enter perfect peace."
-},
-{
-verse:"Philippians 4:7",
-affirmation:"Peace is guarding my mind right now."
-},
-{
-verse:"1 Corinthians 14:33",
-affirmation:"Confusion is not from God."
-}
-],
-
-strength: [
-{
-verse:"Philippians 4:13",
-affirmation:"I have strength for this one step."
-},
-{
-verse:"2 Corinthians 12:9",
-affirmation:"Power shows up in my weakness."
-},
-{
-verse:"Isaiah 40:31",
-affirmation:"My strength is being renewed."
-},
-{
-verse:"Psalm 142:3",
-affirmation:"Even if I don’t see the path, it exists."
-}
-]
-
-};
-{
-title:"Chapter 1: The Landscape of the Storm",
-text:`The complex mind does not experience challenges in isolation...
-It lives within a “Symptom Soup”...`
-},
-{
-title:"Chapter 2: The Anatomy of Shutdown",
-text:`Shutdown is not a failure of will; it is a biological evacuation protocol...`
-},
-{
-title:"Chapter 3: The Architect vs The Pilot",
-text:`The Pilot reacts. The Architect designs...`
-},
-{
-title:"Chapter 4: Colour Frequencies",
-text:`The brain cannot process complexity under load. It processes colour...`
-},
-{
-title:"Chapter 5: Prime Directive",
-text:`Fix the state, then take the step.`
-},
-
-{
-title:"Chapter 6: The 90 Second Rule",
-text:`All emotional waves are chemical. They pass...`
-},
-{
-title:"Chapter 7: Time Blindness",
-text:`Time is either Now or Not Now...`
-},
-{
-title:"Chapter 8: Habit Scaffold",
-text:`Automation beats willpower...`
-},
-{
-title:"Chapter 9: Fueling Logic",
-text:`Biology before psychology...`
-},
-{
-title:"Chapter 10: Fire Kit",
-text:`Pre-built tools for zero cognition states...`
-},
-
-{
-title:"Chapter 11: Anxiety Pulse",
-text:`Anxiety simulates future threats...`
-},
-{
-title:"Chapter 12: ADHD Current",
-text:`The mind cannot land...`
-},
-{
-title:"Chapter 13: Emotional Heat",
-text:`Emotions spike to 100 instantly...`
-},
-{
-title:"Chapter 14: CPTSD Shadows",
-text:`The past leaks into present safety...`
-},
-
-{
-title:"Chapter 17: Minimum Viable Shift",
-text:`Small actions break inertia...`
-},
-{
-title:"Chapter 18: 10/20 Brakes",
-text:`Interrupt loops physically...`
-},
-{
-title:"Chapter 19: Memory Shield",
-text:`Externalize everything...`
-},
-
-{
-title:"Chapter 20: Sanctuary Design",
-text:`Reduce sensory noise...`
-},
-{
-title:"Chapter 21: Social Governor",
-text:`Boundaries preserve energy...`
-},
-{
-title:"Chapter 22: Sensory Override",
-text:`Use biology, not logic...`
-},
-{
-title:"Chapter 23: Reporting Visibility",
-text:`Use colors to communicate state...`
-},
-
-{
-title:"Chapter 24: Sleep Docking",
-text:`Sleep is system repair...`
-},
-{
-title:"Chapter 25: Medication Ledger",
-text:`Track patterns...`
-},
-{
-title:"Chapter 26: Metabolic Reset",
-text:`Move to reset mind...`
-},
-{
-title:"Chapter 27: Daily Ledger",
-text:`Track wins...`
-},
-
-{
-title:"Chapter 28: Strategic Dropping",
-text:`Remove noise...`
-},
-{
-title:"Chapter 29: Chasing the Fox",
-text:`Focus on ONE high-value target...`
-},
-{
-title:"Chapter 30: Bodyguards",
-text:`Internal protectors exist...`
-},
-{
-title:"Chapter 31: Identity Anchors",
-text:`Truth > Feelings`
-},
-{
-title:"Chapter 32: Support Grid",
-text:`You are not meant to fly alone...`
-},
-{
-title:"Chapter 33: The Creed",
-text:`I do not fight my nature. I design for it...`
+lie:"I can't do this",
+truth:"Philippians 4:13",
+affirmation:"I can take one step."
 }
 ];
 
-/* ================= RENDER ================= */
 
-function switchTab(tab){
-    state.tab = tab;
-    render();
+/* =========================
+   ⚙️ UI LOGIC
+========================= */
+
+const chapterList = document.getElementById('chapter-list');
+const chapterView = document.getElementById('chapter-view');
+
+BOOK.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = "block w-full text-left text-xs py-1 opacity-60 hover:opacity-100";
+    btn.innerText = ch.title;
+    btn.onclick = () => loadChapter(i);
+    chapterList.appendChild(btn);
+});
+
+function loadChapter(i) {
+    const ch = BOOK[i];
+    chapterView.innerHTML = `
+        <h2 class="text-lg font-bold mb-4">${ch.title}</h2>
+        <p class="opacity-70">${ch.content}</p>
+    `;
 }
 
-function render(){
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    document.getElementById('nav-'+state.tab)?.classList.add('active');
+loadChapter(0);
 
-    const main = document.getElementById('main');
 
-    if(state.tab === 'dashboard'){
-        main.innerHTML = `
-        <div class="card fade">
-            <h2>🐝 Bee Well System</h2>
-            <p>Clarity. Calm. Direction.</p>
+/* =========================
+   🔁 ANCHOR ROTATOR
+========================= */
+
+let anchorIndex = 0;
+
+function nextAnchor() {
+    const a = ANCHORS[anchorIndex];
+
+    document.getElementById('anchor-display').innerHTML = `
+        <div class="anchor">
+            <p class="text-xs opacity-40">Lie</p>
+            <p>${a.lie}</p>
         </div>
-
-        <div class="card">
-            <p><b>Prime Directive:</b> Fix the State → Then the Step</p>
+        <div class="anchor">
+            <p class="text-xs opacity-40">Truth (${a.truth})</p>
+            <p>${a.affirmation}</p>
         </div>
-        `;
-    }
+    `;
 
-    if(state.tab === 'sanctuary'){
-        main.innerHTML = `
-        <div class="card fade">
-            <h2>🕊 Sanctuary</h2>
-            <p>"If you had 10% more courage, what would you do?"</p>
-        </div>
-        `;
-    }
-
-    if(state.tab === 'book'){
-        const c = BOOK[state.chapter];
-
-        main.innerHTML = `
-        <div class="card chapter fade">
-            <h2>${c.title}</h2>
-            <p>${c.text}</p>
-
-            <br>
-            <button onclick="prev()">←</button>
-            <button onclick="next()">→</button>
-        </div>
-        `;
-    }
-
-    if(state.tab === 'system'){
-        main.innerHTML = `
-        <div class="card fade">
-            <h2>System Core</h2>
-            <p>Memory Shield, Bodyguards, Audits active.</p>
-        </div>
-        `;
-    }
+    anchorIndex = (anchorIndex + 1) % ANCHORS.length;
 }
 
-function next(){
-    if(state.chapter < BOOK.length-1){
-        state.chapter++;
-        render();
-    }
-}
-
-function prev(){
-    if(state.chapter > 0){
-        state.chapter--;
-        render();
-    }
-}
-
-/* INIT */
-render();
+nextAnchor();
 
 </script>
+
 </body>
 </html>
