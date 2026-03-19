@@ -503,3 +503,180 @@ nextAnchor();
 
 </body>
 </html>
+const BOOK=[
+{title:"1. The Landscape of the Storm",content:`The complex mind lives in a Symptom Soup where states overlap.`},
+{title:"2. The Anatomy of Shutdown",content:`Shutdown is protection, not failure.`},
+{title:"3. The Architect vs The Pilot",content:`The Pilot reacts. The Architect designs.`},
+{title:"4. Colour Frequencies",content:`Use color instead of overthinking.`},
+{title:"5. Prime Directive",content:`Fix the state, then the step.`},
+
+{title:"6. 90-Second Rule",content:`Emotions pass chemically.`},
+{title:"7. Time Blindness",content:`Time must be externalized.`},
+{title:"8. Habit Stacking",content:`Attach habits together.`},
+{title:"9. Fueling Logic",content:`Biology drives mind.`},
+{title:"10. Fire Kit",content:`Prepare tools before crisis.`},
+
+{title:"11. Anxiety Pulse",content:`Anxiety simulates danger.`},
+{title:"12. ADHD Scatter",content:`Attention cannot land.`},
+{title:"13. Emotional Heat",content:`Feelings spike fast.`},
+{title:"14. CPTSD Shadow",content:`Past bleeds into present.`},
+{title:"15. Depression Gravity",content:`Energy collapses.`},
+
+{title:"16. Dissociation Fog",content:`System disconnects.`},
+{title:"17. MVS Protocol",content:`Move one step.`},
+{title:"18. 10/20 Brakes",content:`Interrupt loops.`},
+{title:"19. Memory Shield",content:`Externalize everything.`},
+
+{title:"20. Sanctuary Design",content:`Reduce noise.`},
+{title:"21. Social Governor",content:`Protect energy.`},
+{title:"22. Sensory Override",content:`Body resets brain.`},
+{title:"23. Reporting Visibility",content:`Use color language.`},
+
+{title:"24. Sleep Docking",content:`Sleep repairs.`},
+{title:"25. Medication Ledger",content:`Track patterns.`},
+{title:"26. Metabolic Reset",content:`Move to reset.`},
+{title:"27. Daily Ledger",content:`Log wins.`},
+
+{title:"28. Strategic Filter",content:`Drop noise.`},
+{title:"29. Chase the Fox",content:`Focus one task.`},
+{title:"30. Bodyguards",content:`Patterns protect.`},
+{title:"31. Identity Anchors",content:`Truth over feelings.`},
+{title:"32. Support Grid",content:`Use people.`},
+{title:"33. Architect’s Creed",content:`You are built to navigate.`}
+];
+
+const ANCHORS=[
+{lie:"I am a mistake",truth:"Psalm 139:14",affirmation:"I am fearfully and wonderfully made."},
+{lie:"I am unwanted",truth:"Ephesians 1:4",affirmation:"I am chosen."},
+{lie:"I am alone",truth:"Deuteronomy 31:8",affirmation:"I am never alone."},
+{lie:"I am overwhelmed",truth:"2 Timothy 1:7",affirmation:"I have a sound mind."},
+{lie:"I can't do this",truth:"Philippians 4:13",affirmation:"I can take one step."}
+];
+
+let anchorIndex=0;
+let chapterIndex=0;
+function switchTab(tab){
+    state.tab=tab;
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+    render();
+}
+
+function render(){
+    const v=document.getElementById('view');
+
+    if(state.tab==='base'){
+        v.innerHTML=`
+        <div class="grid grid-cols-2 gap-4 fade">
+            <div class="glass p-4">
+                <p class="text-xs opacity-40">Wave</p>
+                <p class="text-xl">${state.wave}%</p>
+            </div>
+
+            <div class="glass p-4">
+                <p class="text-xs opacity-40">Integrity</p>
+                <p class="text-xl">${state.integrity}%</p>
+            </div>
+
+            <button onclick="toggleSanctuary()" class="glass p-3 col-span-2">
+                ${state.sanctuary?'Exit Sanctuary':'Enter Sanctuary'}
+            </button>
+        </div>`;
+    }
+
+    if(state.tab==='book'){
+        const ch=BOOK[chapterIndex];
+        v.innerHTML=`
+        <div class="space-y-4 fade max-w-xl">
+            <div class="glass p-6">
+                <p class="text-xs opacity-40 mb-2">${ch.title}</p>
+                <p>${ch.content}</p>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="prevChapter()" class="glass px-4 py-2">Prev</button>
+                <button onclick="nextChapter()" class="glass px-4 py-2">Next</button>
+            </div>
+        </div>`;
+    }
+
+    if(state.tab==='anchor'){
+        const a=ANCHORS[anchorIndex];
+        v.innerHTML=`
+        <div class="glass p-6 text-center fade max-w-md">
+            <p class="text-xs opacity-40">Lie</p>
+            <p class="text-red-400 mb-4">${a.lie}</p>
+
+            <p class="text-xs opacity-40">${a.truth}</p>
+            <p class="text-indigo-400 text-lg mt-2">${a.affirmation}</p>
+
+            <button onclick="nextAnchor()" class="mt-6 px-4 py-2 bg-indigo-500 rounded">
+                Next
+            </button>
+        </div>`;
+    }
+
+    if(state.tab==='terminal'){
+        v.innerHTML=`
+        <div class="terminal p-4 rounded">
+            <div id="out" class="h-40 overflow-y-auto text-xs"></div>
+            <input id="cmd" class="w-full mt-2 bg-black outline-none"
+            placeholder="/help"
+            onkeydown="handleCmd(event)">
+        </div>`;
+    }
+}
+
+function toggleSanctuary(){
+    state.sanctuary=!state.sanctuary;
+    document.body.classList.toggle('sanctuary');
+}
+
+function nextAnchor(){
+    anchorIndex=(anchorIndex+1)%ANCHORS.length;
+    render();
+}
+
+function nextChapter(){
+    chapterIndex=(chapterIndex+1)%BOOK.length;
+    render();
+}
+
+function prevChapter(){
+    chapterIndex=(chapterIndex-1+BOOK.length)%BOOK.length;
+    render();
+}
+
+function handleCmd(e){
+    if(e.key==="Enter"){
+        const val=e.target.value;
+        log("> "+val);
+
+        if(val==="/help") log("/wave /anchor /book /sanctuary");
+
+        if(val.startsWith("/wave")){
+            const n=parseInt(val.split(" ")[1]);
+            if(n) state.wave=n;
+            render();
+        }
+
+        if(val==="/anchor") switchTab('anchor');
+        if(val==="/book") switchTab('book');
+        if(val==="/sanctuary") toggleSanctuary();
+
+        e.target.value="";
+    }
+}
+
+function log(msg){
+    const out=document.getElementById('out');
+    if(!out) return;
+    out.innerHTML+=`<div>${msg}</div>`;
+    out.scrollTop=out.scrollHeight;
+}
+
+render();
+
+</script>
+</body>
+</html>
