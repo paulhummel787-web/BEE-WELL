@@ -1,44 +1,88 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Architect OS</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="./styles/main.css">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architect OS</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      background: #0a0a0a;
+      color: white;
+      font-family: system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {opacity:0; transform:translateY(10px);}
+      to {opacity:1; transform:translateY(0);}
+    }
+  </style>
+
 </head>
 
-<body class="bg-black text-white p-6" onclick="trackInteraction()" onkeydown="trackInteraction()">
+<body class="p-6">
 
-<div id="app"></div>
+  <div id="app"></div>
 
-<script type="module">
-import "./core/state.js";
-import "./core/storage.js";
+  <script type="module">
 
-import "./modules/intelligence.js";
-import "./modules/autoSteps.js";
-import "./modules/audit.js";
-import "./modules/intervention.js";
-import "./modules/interventionAuto.js";
-import "./modules/progression.js";
-import "./modules/learning.js";
-import "./modules/commands.js";
-import "./modules/journal.js";
-import "./modules/fox.js";
-import "./modules/ai.js";
-import "./modules/patterns.js";
-import "./modules/behavior.js";
-import "./modules/mode.js";
-import "./modules/focus.js";
-import "./modules/visualState.js";
+    import { initState } from "./core/state.js";
+    import { renderLayout, getTab } from "./ui/layout.js";
 
-import "./core/loop.js";
+    import { renderDashboard } from "./views/dashboard.js";
+    import { renderMVS } from "./views/mvs.js";
+    import { renderFox } from "./views/fox.js";
+    import { renderStats } from "./views/stats.js";
+    import { renderTerminal } from "./views/terminal.js";
+    import { renderJournal } from "./views/journal.js";
 
-import "./ui/layout.js";
-import "./ui/render.js";
-import "./ui/visuals.js";
-</script>
+    import "./modules/engine.js";
+    import "./modules/hud.js";
+    import "./modules/analytics.js";
+    import "./modules/aiCoach.js";
+
+    initState();
+
+    window.renderApp = function () {
+      const tab = getTab();
+
+      let view = "";
+
+      if (tab === "dashboard") view = renderDashboard();
+      if (tab === "mvs") view = renderMVS();
+      if (tab === "fox") view = renderFox();
+      if (tab === "stats") view = renderStats();
+      if (tab === "terminal") view = renderTerminal();
+      if (tab === "journal") view = renderJournal();
+
+      document.getElementById("app").innerHTML = renderLayout(view);
+    };
+
+    window.renderApp();
+
+    setInterval(() => {
+      window.renderApp();
+    }, 1000);
+
+  </script>
 
 </body>
 </html>
