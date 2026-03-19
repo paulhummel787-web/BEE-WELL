@@ -1,24 +1,33 @@
+// === GLOBAL STATE ===
 export const state = {
   wave: 70,
   integrity: 50,
-  mode: "steady",
-  color: "green",
-  pressure: 0,
-
-  fox: null,
+  personality: "architect",
   mvs: [],
-
-  xp: 0,
-  level: 1,
-
-  history: [],
-  achievements: [],
-  streak: 0,
-  last: null
+  journal: [],
+  daily: {
+    fox: ""
+  }
 };
 
-export const modules = [];
+// === INIT ===
+export function initState() {
+  const saved = localStorage.getItem("architect_state");
 
-export function registerModule(fn) {
-  modules.push(fn);
+  if (saved) {
+    Object.assign(state, JSON.parse(saved));
+  }
+
+  // auto save loop
+  setInterval(() => {
+    localStorage.setItem(
+      "architect_state",
+      JSON.stringify(state)
+    );
+  }, 3000);
 }
+
+// === SETTERS ===
+window.setPersonality = function (p) {
+  state.personality = p;
+};
