@@ -10,15 +10,19 @@ export const state = {
   }
 };
 
-// === INIT ===
+// === INIT FUNCTION ===
 export function initState() {
   const saved = localStorage.getItem("architect_state");
 
   if (saved) {
-    Object.assign(state, JSON.parse(saved));
+    try {
+      Object.assign(state, JSON.parse(saved));
+    } catch (e) {
+      console.warn("State load failed");
+    }
   }
 
-  // auto save loop
+  // auto save
   setInterval(() => {
     localStorage.setItem(
       "architect_state",
@@ -27,7 +31,5 @@ export function initState() {
   }, 3000);
 }
 
-// === SETTERS ===
-window.setPersonality = function (p) {
-  state.personality = p;
-};
+// expose for debug safety
+window.initState = initState;
