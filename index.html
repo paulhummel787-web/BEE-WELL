@@ -1,4 +1,28 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Architect OS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      color: white;
+      font-family: sans-serif;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<!-- ✅ THIS MUST EXIST BEFORE SCRIPT -->
+
 <div id="app"></div>
+
 <script type="module">
 
 try {
@@ -27,8 +51,13 @@ try {
     if (tab === "mvs") view = mvs.renderMVS();
     if (tab === "journal") view = journal.renderJournal();
 
-    document.getElementById("app").innerHTML =
-      layout.renderLayout(view);
+    const app = document.getElementById("app");
+
+    if (!app) {
+      throw new Error("App container missing");
+    }
+
+    app.innerHTML = layout.renderLayout(view);
   }
 
   render();
@@ -46,3 +75,6 @@ try {
 }
 
 </script>
+
+</body>
+</html>
