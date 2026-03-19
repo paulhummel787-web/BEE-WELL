@@ -22,17 +22,7 @@ function getLabel() {
   return "OVERLOAD";
 }
 
-function getGuidance() {
-  const w = state.wave;
-  const i = state.integrity;
-
-  if (w < 25) return "Reduce everything.";
-  if (w > 90 && i < 40) return "Overload.";
-  if (w > 70 && i > 60) return "Execute.";
-  return "Steady.";
-}
-
-// ✅ IMPORTANT: NAMED FUNCTION
+// ✅ MAIN RENDER
 function renderDashboard() {
   const color = getColor();
 
@@ -54,27 +44,16 @@ function renderDashboard() {
           ${getLabel()}
         </h1>
 
-        <p>${getGuidance()}</p>
+        <p>System active</p>
 
-      </div>
-
-      <div style="margin-top:20px;text-align:center;">
-        <button onclick="boost()">BOOST</button>
-        <button onclick="calm()">CALM</button>
       </div>
 
     </div>
   `;
 }
 
-// ✅ IMPORTANT: EXPORT
+// ✅ FORCE GLOBAL (NO IMPORT ISSUES EVER AGAIN)
+window.renderDashboard = renderDashboard;
+
+// optional export (won’t break anything)
 export { renderDashboard };
-
-// ===== ACTIONS =====
-window.boost = function () {
-  state.wave += 5;
-};
-
-window.calm = function () {
-  state.wave -= 5;
-};
