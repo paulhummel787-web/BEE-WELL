@@ -1,49 +1,31 @@
-<!DOCTYPE html>
-
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Architect OS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    body {
-      margin: 0;
-      background: #0a0a0a;
-      color: white;
-      font-family: sans-serif;
-    }
-  </style>
-
-</head>
-
-<body>
-
-<div id="app"></div>
-
-<script type="module">
-
 try {
 
-  // ===== IMPORT CORE FIRST =====
   await import("./core/state.js");
 
-  // ===== IMPORT VIEW (ONLY DASHBOARD FOR NOW) =====
-  const dashboard = await import("./views/dashboard.js");
+  const layout = await import("./ui/layout.js");
 
-  // ===== IMPORT MODULES =====
+  const dashboard = await import("./views/dashboard.js");
+  const mvs = await import("./views/mvs.js");
+  const journal = await import("./views/journal.js");
+
   await import("./modules/engine.js");
   await import("./modules/hud.js");
   await import("./modules/panic.js");
   await import("./modules/anchor.js");
 
-  // ===== INIT =====
   window.initState();
 
-  // ===== RENDER LOOP (FORCED DASHBOARD) =====
   function render() {
+    const tab = layout.getTab();
+
+    let view = "";
+
+    if (tab === "dashboard") view = dashboard.renderDashboard();
+    if (tab === "mvs") view = mvs.renderMVS();
+    if (tab === "journal") view = journal.renderJournal();
+
     document.getElementById("app").innerHTML =
-      dashboard.renderDashboard();
+      layout.renderLayout(view);
   }
 
   render();
@@ -59,8 +41,3 @@ try {
 
   console.error(e);
 }
-
-</script>
-
-</body>
-</html>
