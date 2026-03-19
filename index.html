@@ -3376,3 +3376,335 @@ handleCmd = function(e){
 };
 
 </script>
+<script>
+
+/* =========================
+🧬 ADAPTIVE SYSTEM INTELLIGENCE
+Tracks behavior + adjusts experience
+========================= */
+
+state.history = [];
+state.mode = "steady"; // steady | overloaded | low | sharp
+
+function updateSystemState() {
+    const w = state.wave;
+    const i = state.integrity;
+
+    if (w < 30) state.mode = "low";
+    else if (w > 80 && i < 40) state.mode = "overloaded";
+    else if (w > 70 && i > 60) state.mode = "sharp";
+    else state.mode = "steady";
+}
+
+/* =========================
+🎯 DYNAMIC GUIDANCE ENGINE
+========================= */
+
+function getSystemGuidance() {
+    updateSystemState();
+
+    const guidance = {
+        low: "Reduce everything. Drink water. One small movement.",
+        overloaded: "Too much input. Remove stimulation. Breathe.",
+        sharp: "High clarity detected. Chase the Fox.",
+        steady: "Maintain rhythm. Stay with the current step."
+    };
+
+    return guidance[state.mode];
+}
+
+/* =========================
+🎨 COLOR FIELD BACKGROUND ENGINE
+========================= */
+
+const COLOR_FIELDS = {
+    blue: "radial-gradient(circle at 20% 20%, #1e3a8a, transparent 60%)",
+    red: "radial-gradient(circle at 80% 20%, #7f1d1d, transparent 60%)",
+    yellow: "radial-gradient(circle at 50% 80%, #92400e, transparent 60%)",
+    purple: "radial-gradient(circle at 30% 70%, #581c87, transparent 60%)",
+    green: "radial-gradient(circle at 70% 60%, #064e3b, transparent 60%)",
+    orange: "radial-gradient(circle at 60% 40%, #7c2d12, transparent 60%)"
+};
+
+function updateBackgroundByState() {
+    let color = "blue";
+
+    if (state.wave > 75) color = "green";
+    else if (state.wave < 30) color = "blue";
+    else if (state.integrity < 40) color = "red";
+    else if (state.wave > 60) color = "yellow";
+
+    document.body.style.backgroundImage = COLOR_FIELDS[color];
+}
+
+/* =========================
+🧠 MICRO-LOGIC TRACKING
+========================= */
+
+function recordAction(action) {
+    state.history.push({
+        action,
+        time: Date.now()
+    });
+
+    if (state.history.length > 50) state.history.shift();
+}
+
+/* =========================
+⚡ FLOW DETECTION
+========================= */
+
+function detectFlow() {
+    if (state.history.length < 5) return;
+
+    const recent = state.history.slice(-5);
+
+    const rapid = recent.every((a, i) => {
+        if (i === 0) return true;
+        return (a.time - recent[i-1].time) < 120000;
+    });
+
+    if (rapid) {
+        state.integrity += 2;
+        log("⚡ Flow detected");
+    }
+}
+
+/* =========================
+🧭 DAILY SYSTEM LOOP
+========================= */
+
+setInterval(() => {
+    updateSystemState();
+    updateBackgroundByState();
+    detectFlow();
+}, 5000);
+
+/* =========================
+🪶 BREATHING ORB
+========================= */
+
+const orb = document.createElement("div");
+orb.style.position = "fixed";
+orb.style.bottom = "20px";
+orb.style.right = "20px";
+orb.style.width = "60px";
+orb.style.height = "60px";
+orb.style.borderRadius = "50%";
+orb.style.background = "rgba(255,255,255,0.05)";
+orb.style.backdropFilter = "blur(10px)";
+orb.style.zIndex = "999";
+orb.style.animation = "breathe 4s ease-in-out infinite";
+
+document.body.appendChild(orb);
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes breathe {
+    0% { transform: scale(1); opacity:.5 }
+    50% { transform: scale(1.2); opacity:1 }
+    100% { transform: scale(1); opacity:.5 }
+}
+`;
+document.head.appendChild(style);
+
+/* =========================
+📖 BOOK IMMERSION MODE
+========================= */
+
+function openReadingMode(text, title) {
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 bg-black z-[999] p-10 overflow-y-auto";
+
+    overlay.innerHTML = `
+        <h1 class="text-2xl mb-6">${title}</h1>
+        <p class="leading-loose max-w-2xl">${text}</p>
+        <button onclick="this.parentElement.remove()" class="mt-10 text-xs opacity-40">EXIT</button>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+/* =========================
+🧬 EXPANDED ANCHOR ENGINE
+========================= */
+
+const FULL_ANCHORS = [
+{
+lie:"I am a mistake",
+truth:"Psalm 139:14",
+affirmation:"I am fearfully and wonderfully made; God does not make mistakes."
+},
+{
+lie:"I am unwanted",
+truth:"Ephesians 1:4",
+affirmation:"I am chosen before the world began."
+},
+{
+lie:"I am alone",
+truth:"Deuteronomy 31:8",
+affirmation:"God is already in my tomorrow."
+},
+{
+lie:"I am broken",
+truth:"2 Corinthians 5:17",
+affirmation:"I am a new creation."
+},
+{
+lie:"I am unloved",
+truth:"Romans 8:38-39",
+affirmation:"Nothing can separate me from God’s love."
+},
+{
+lie:"I am overwhelmed",
+truth:"2 Timothy 1:7",
+affirmation:"I have a sound and clear mind."
+},
+{
+lie:"I can't move",
+truth:"Philippians 4:13",
+affirmation:"I have strength for one step."
+},
+{
+lie:"I am unsafe",
+truth:"Psalm 27:10",
+affirmation:"God holds me even if others leave."
+}
+];
+
+/* =========================
+🧠 AUTO-ANCHOR SUGGESTION
+========================= */
+
+function suggestAnchor() {
+    if (state.mode === "low") return FULL_ANCHORS[0];
+    if (state.mode === "overloaded") return FULL_ANCHORS[5];
+    if (state.mode === "sharp") return FULL_ANCHORS[6];
+    return FULL_ANCHORS[2];
+}
+
+/* =========================
+💬 GUIDANCE HUD
+========================= */
+
+const hud = document.createElement("div");
+hud.style.position = "fixed";
+hud.style.top = "10px";
+hud.style.right = "10px";
+hud.style.padding = "10px 14px";
+hud.style.fontSize = "10px";
+hud.style.background = "rgba(0,0,0,0.5)";
+hud.style.borderRadius = "10px";
+hud.style.opacity = "0.6";
+hud.style.zIndex = "999";
+
+document.body.appendChild(hud);
+
+setInterval(() => {
+    hud.innerText = getSystemGuidance();
+}, 2000);
+
+/* =========================
+🎯 FOX TARGET SYSTEM
+========================= */
+
+state.fox = null;
+
+function setFox(task) {
+    state.fox = task;
+    log("🦊 Fox locked: " + task);
+}
+
+function showFox() {
+    if (!state.fox) return;
+
+    const div = document.createElement("div");
+    div.className = "fixed bottom-24 left-4 bg-indigo-500 p-3 rounded-xl text-xs";
+
+    div.innerText = "🦊 " + state.fox;
+
+    document.body.appendChild(div);
+
+    setTimeout(()=>div.remove(),4000);
+}
+
+/* =========================
+🔁 TERMINAL UPGRADES
+========================= */
+
+function handleCmd(e){
+    if(e.key==="Enter"){
+        const val=e.target.value;
+        log("> "+val);
+
+        if(val.startsWith("/fox")){
+            const t = val.replace("/fox ","");
+            setFox(t);
+        }
+
+        if(val==="/guide"){
+            log(getSystemGuidance());
+        }
+
+        if(val==="/state"){
+            log("Mode: " + state.mode);
+        }
+
+        if(val==="/anchor"){
+            const a = suggestAnchor();
+            log(a.affirmation);
+        }
+
+        e.target.value="";
+    }
+}
+
+/* =========================
+🌊 WAVE AUTO-DECAY / RECOVERY
+========================= */
+
+setInterval(()=>{
+    if(state.wave > 50) state.wave -= 0.5;
+    else state.wave += 0.2;
+
+    if(state.wave < 0) state.wave = 0;
+    if(state.wave > 100) state.wave = 100;
+
+}, 4000);
+
+/* =========================
+💾 PERSISTENCE (LOCAL SAVE)
+========================= */
+
+setInterval(()=>{
+    localStorage.setItem("bee_state", JSON.stringify(state));
+}, 5000);
+
+window.onload = () => {
+    const saved = localStorage.getItem("bee_state");
+    if(saved){
+        Object.assign(state, JSON.parse(saved));
+    }
+};
+
+/* =========================
+✨ FINAL TOUCH: SUBTLE PARALLAX
+========================= */
+
+document.addEventListener("mousemove", (e)=>{
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    document.body.style.transform = `translate(${x*5}px, ${y*5}px)`;
+});
+
+/* =========================
+🚀 SYSTEM ONLINE LOG
+========================= */
+
+log("🧠 Architect OS Online");
+log("🦊 Fox System Ready");
+log("📖 Book Loaded");
+log("✝ Anchor Engine Active");
+
+</script>
