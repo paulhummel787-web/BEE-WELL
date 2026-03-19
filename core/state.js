@@ -1,3 +1,4 @@
+// ===== GLOBAL STATE =====
 const state = {
   wave: 70,
   integrity: 50,
@@ -9,6 +10,15 @@ const state = {
   }
 };
 
+// ===== MODULE REGISTRY =====
+const modules = [];
+
+// allow modules to register themselves
+export function registerModule(fn) {
+  modules.push(fn);
+}
+
+// ===== INIT =====
 function initState() {
   const saved = localStorage.getItem("architect_state");
 
@@ -20,17 +30,27 @@ function initState() {
     }
   }
 
+  // run all registered modules
   setInterval(() => {
+    modules.forEach(fn => {
+      try {
+        fn(state);
+      } catch (e) {
+        console.warn("Module error:", e);
+      }
+    });
+
     localStorage.setItem(
       "architect_state",
       JSON.stringify(state)
     );
-  }, 3000);
+
+  }, 2000);
 }
 
-// 🔥 CRITICAL: attach to window (no import confusion)
+// ===== GLOBAL ACCESS =====
 window.state = state;
 window.initState = initState;
 
-// also export for modules
+// ===== EXPORTS =====
 export { state, initState };
