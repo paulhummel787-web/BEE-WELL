@@ -7,11 +7,12 @@ export function renderLayout(inner) {
   return `
   <div class="max-w-4xl mx-auto space-y-6">
 
-    <div class="flex gap-4 text-xs uppercase opacity-60">
+    <div class="flex gap-4 text-xs uppercase opacity-60 flex-wrap">
       ${tabBtn("dashboard")}
       ${tabBtn("mvs")}
       ${tabBtn("fox")}
       ${tabBtn("stats")}
+      ${tabBtn("terminal")}
     </div>
 
     <div class="border border-white/10 p-4 rounded">
