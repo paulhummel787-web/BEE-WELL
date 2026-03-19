@@ -30,6 +30,10 @@ export function renderLayout(content) {
           Anchor
         </button>
 
+        <button onclick="triggerPanic()" class="text-red-500 font-bold">
+          PANIC
+        </button>
+
       </div>
 
       <div id="view">
