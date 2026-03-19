@@ -1,38 +1,7 @@
-import { state } from "../core/state.js";
-
 let currentTab = "dashboard";
 
-export function renderLayout(inner) {
-
-  return `
-  <div class="max-w-4xl mx-auto space-y-6">
-
-    <div class="flex gap-4 text-xs uppercase opacity-60 flex-wrap">
-      ${tabBtn("dashboard")}
-      ${tabBtn("mvs")}
-      ${tabBtn("fox")}
-      ${tabBtn("stats")}
-      ${tabBtn("terminal")}
-      ${tabBtn("journal")}
-    </div>
-
-    <div class="border border-white/10 p-4 rounded">
-      ${inner}
-    </div>
-
-  </div>
-  `;
-}
-
-function tabBtn(name) {
-  return `
-    <button 
-      onclick="window.switchTab('${name}')"
-      class="${currentTab === name ? 'opacity-100 underline' : 'opacity-40'}"
-    >
-      ${name}
-    </button>
-  `;
+export function getTab() {
+  return currentTab;
 }
 
 window.switchTab = function (t) {
@@ -40,6 +9,29 @@ window.switchTab = function (t) {
   window.renderApp();
 };
 
-export function getTab() {
-  return currentTab;
+export function renderLayout(content) {
+  return `
+    <div class="max-w-4xl mx-auto space-y-6">
+
+      <div class="flex gap-4 text-sm opacity-60 flex-wrap">
+
+        <button onclick="switchTab('dashboard')">Home</button>
+        <button onclick="switchTab('mvs')">MVS</button>
+        <button onclick="switchTab('fox')">Fox</button>
+        <button onclick="switchTab('stats')">Stats</button>
+        <button onclick="switchTab('terminal')">Terminal</button>
+        <button onclick="switchTab('journal')">Journal</button>
+
+        <button onclick="openBook()" class="text-indigo-400">
+          Book
+        </button>
+
+      </div>
+
+      <div id="view">
+        ${content}
+      </div>
+
+    </div>
+  `;
 }
