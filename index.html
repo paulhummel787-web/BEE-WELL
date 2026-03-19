@@ -3708,3 +3708,449 @@ log("📖 Book Loaded");
 log("✝ Anchor Engine Active");
 
 </script>
+<script>
+
+/* =========================
+🧠 MVS ENGINE (MINIMUM VIABLE STEPS)
+========================= */
+
+state.mvsList = state.mvsList || [];
+
+function addMVS(task){
+    if(!task) return;
+
+    state.mvsList.push({
+        id: Date.now(),
+        task,
+        completed:false,
+        created: Date.now()
+    });
+
+    log("🧩 MVS added: " + task);
+    renderMVS();
+}
+
+function toggleMVS(id){
+    const m = state.mvsList.find(x=>x.id===id);
+    if(!m) return;
+
+    m.completed = !m.completed;
+
+    if(m.completed){
+        state.integrity += 3;
+        state.wave += 2;
+        recordAction("mvs_complete");
+        log("✅ Completed: " + m.task);
+    }
+
+    renderMVS();
+}
+
+function deleteMVS(id){
+    state.mvsList = state.mvsList.filter(x=>x.id!==id);
+    renderMVS();
+}
+
+/* =========================
+🎯 AUTO MVS SUGGESTION
+========================= */
+
+function suggestMVS(){
+    if(state.mode === "low") return "Drink water";
+    if(state.mode === "overloaded") return "Close 3 tabs";
+    if(state.mode === "sharp") return "Start Fox for 2 minutes";
+    return "Move one small thing";
+}
+
+/* =========================
+🧩 RENDER MVS PANEL
+========================= */
+
+function renderMVS(){
+    let panel = document.getElementById("mvs-panel");
+
+    if(!panel){
+        panel = document.createElement("div");
+        panel.id = "mvs-panel";
+        panel.className = "fixed left-4 bottom-24 w-72 glass p-4 rounded-xl text-xs z-[999]";
+        document.body.appendChild(panel);
+    }
+
+    panel.innerHTML = `
+        <div class="flex justify-between mb-2">
+            <span class="opacity-40">MVS Engine</span>
+            <button onclick="addMVS(prompt('New step:'))">+</button>
+        </div>
+
+        <div class="space-y-1 max-h-40 overflow-y-auto">
+            ${state.mvsList.map(m=>`
+                <div class="flex justify-between items-center">
+                    <div onclick="toggleMVS(${m.id})" class="cursor-pointer ${m.completed?'line-through opacity-40':''}">
+                        ${m.task}
+                    </div>
+                    <button onclick="deleteMVS(${m.id})">x</button>
+                </div>
+            `).join("")}
+        </div>
+
+        <button onclick="addMVS(suggestMVS())" class="mt-2 w-full bg-indigo-500 rounded p-1">
+            Suggest Step
+        </button>
+    `;
+}
+
+/* =========================
+⚡ AUTO EXECUTION NUDGE
+========================= */
+
+setInterval(()=>{
+    if(state.mvsList.length === 0){
+        addMVS(suggestMVS());
+    }
+}, 15000);
+
+/* =========================
+🧠 FOCUS LOCK MODE
+========================= */
+
+state.focusMode = false;
+
+function toggleFocusMode(){
+    state.focusMode = !state.focusMode;
+
+    if(state.focusMode){
+        document.body.style.filter = "blur(2px)";
+        showFocusOverlay();
+        log("🎯 Focus Mode ON");
+    } else {
+        document.body.style.filter = "";
+        removeFocusOverlay();
+        log("🎯 Focus Mode OFF");
+    }
+}
+
+function showFocusOverlay(){
+    const div = document.createElement("div");
+    div.id = "focus-overlay";
+    div.className = "fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]";
+    
+    div.innerHTML = `
+        <div class="text-center">
+            <p class="text-xs opacity-40 mb-2">FOCUS TARGET</p>
+            <p class="text-xl">${state.fox || "No Fox Set"}</p>
+            <button onclick="toggleFocusMode()" class="mt-6 px-4 py-2 bg-indigo-500 rounded">
+                Exit
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(div);
+}
+
+function removeFocusOverlay(){
+    const el = document.getElementById("focus-overlay");
+    if(el) el.remove();
+}
+
+/* =========================
+🧬 BEHAVIOR SCORING SYSTEM
+========================= */
+
+state.score = state.score || 0;
+
+function updateScore(type){
+    const map = {
+        mvs_complete: 5,
+        anchor_used: 3,
+        fox_set: 4
+    };
+
+    state.score += map[type] || 1;
+}
+
+/* =========================
+🏆 SCORE HUD
+========================= */
+
+const scoreHud = document.createElement("div");
+scoreHud.style.position = "fixed";
+scoreHud.style.bottom = "10px";
+scoreHud.style.left = "10px";
+scoreHud.style.fontSize = "10px";
+scoreHud.style.opacity = "0.6";
+scoreHud.style.zIndex = "999";
+
+document.body.appendChild(scoreHud);
+
+setInterval(()=>{
+    scoreHud.innerText = "Score: " + state.score;
+},2000);
+
+/* =========================
+🧠 AUTO STATE CORRECTION
+========================= */
+
+setInterval(()=>{
+    if(state.mode === "low"){
+        state.wave += 1;
+    }
+
+    if(state.mode === "overloaded"){
+        state.wave -= 1;
+    }
+
+},5000);
+
+/* =========================
+🧭 NAV BAR BOOST (MVS + FOCUS)
+========================= */
+
+const nav = document.querySelector(".flex.gap-4");
+
+if(nav){
+    const btn1 = document.createElement("button");
+    btn1.innerText = "MVS";
+    btn1.className = "nav-btn";
+    btn1.onclick = renderMVS;
+
+    const btn2 = document.createElement("button");
+    btn2.innerText = "FOCUS";
+    btn2.className = "nav-btn";
+    btn2.onclick = toggleFocusMode;
+
+    nav.appendChild(btn1);
+    nav.appendChild(btn2);
+}
+
+/* =========================
+🚀 INIT
+========================= */
+
+renderMVS();
+log("🧩 MVS Engine Online");
+log("🎯 Focus Mode Ready");
+
+</script>
+<script>
+
+/* =========================
+🧠 MVS ENGINE (MINIMUM VIABLE STEPS)
+========================= */
+
+state.mvsList = state.mvsList || [];
+
+function addMVS(task){
+    if(!task) return;
+
+    state.mvsList.push({
+        id: Date.now(),
+        task,
+        completed:false,
+        created: Date.now()
+    });
+
+    log("🧩 MVS added: " + task);
+    renderMVS();
+}
+
+function toggleMVS(id){
+    const m = state.mvsList.find(x=>x.id===id);
+    if(!m) return;
+
+    m.completed = !m.completed;
+
+    if(m.completed){
+        state.integrity += 3;
+        state.wave += 2;
+        recordAction("mvs_complete");
+        log("✅ Completed: " + m.task);
+    }
+
+    renderMVS();
+}
+
+function deleteMVS(id){
+    state.mvsList = state.mvsList.filter(x=>x.id!==id);
+    renderMVS();
+}
+
+/* =========================
+🎯 AUTO MVS SUGGESTION
+========================= */
+
+function suggestMVS(){
+    if(state.mode === "low") return "Drink water";
+    if(state.mode === "overloaded") return "Close 3 tabs";
+    if(state.mode === "sharp") return "Start Fox for 2 minutes";
+    return "Move one small thing";
+}
+
+/* =========================
+🧩 RENDER MVS PANEL
+========================= */
+
+function renderMVS(){
+    let panel = document.getElementById("mvs-panel");
+
+    if(!panel){
+        panel = document.createElement("div");
+        panel.id = "mvs-panel";
+        panel.className = "fixed left-4 bottom-24 w-72 glass p-4 rounded-xl text-xs z-[999]";
+        document.body.appendChild(panel);
+    }
+
+    panel.innerHTML = `
+        <div class="flex justify-between mb-2">
+            <span class="opacity-40">MVS Engine</span>
+            <button onclick="addMVS(prompt('New step:'))">+</button>
+        </div>
+
+        <div class="space-y-1 max-h-40 overflow-y-auto">
+            ${state.mvsList.map(m=>`
+                <div class="flex justify-between items-center">
+                    <div onclick="toggleMVS(${m.id})" class="cursor-pointer ${m.completed?'line-through opacity-40':''}">
+                        ${m.task}
+                    </div>
+                    <button onclick="deleteMVS(${m.id})">x</button>
+                </div>
+            `).join("")}
+        </div>
+
+        <button onclick="addMVS(suggestMVS())" class="mt-2 w-full bg-indigo-500 rounded p-1">
+            Suggest Step
+        </button>
+    `;
+}
+
+/* =========================
+⚡ AUTO EXECUTION NUDGE
+========================= */
+
+setInterval(()=>{
+    if(state.mvsList.length === 0){
+        addMVS(suggestMVS());
+    }
+}, 15000);
+
+/* =========================
+🧠 FOCUS LOCK MODE
+========================= */
+
+state.focusMode = false;
+
+function toggleFocusMode(){
+    state.focusMode = !state.focusMode;
+
+    if(state.focusMode){
+        document.body.style.filter = "blur(2px)";
+        showFocusOverlay();
+        log("🎯 Focus Mode ON");
+    } else {
+        document.body.style.filter = "";
+        removeFocusOverlay();
+        log("🎯 Focus Mode OFF");
+    }
+}
+
+function showFocusOverlay(){
+    const div = document.createElement("div");
+    div.id = "focus-overlay";
+    div.className = "fixed inset-0 bg-black/80 flex items-center justify-center z-[9999]";
+    
+    div.innerHTML = `
+        <div class="text-center">
+            <p class="text-xs opacity-40 mb-2">FOCUS TARGET</p>
+            <p class="text-xl">${state.fox || "No Fox Set"}</p>
+            <button onclick="toggleFocusMode()" class="mt-6 px-4 py-2 bg-indigo-500 rounded">
+                Exit
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(div);
+}
+
+function removeFocusOverlay(){
+    const el = document.getElementById("focus-overlay");
+    if(el) el.remove();
+}
+
+/* =========================
+🧬 BEHAVIOR SCORING SYSTEM
+========================= */
+
+state.score = state.score || 0;
+
+function updateScore(type){
+    const map = {
+        mvs_complete: 5,
+        anchor_used: 3,
+        fox_set: 4
+    };
+
+    state.score += map[type] || 1;
+}
+
+/* =========================
+🏆 SCORE HUD
+========================= */
+
+const scoreHud = document.createElement("div");
+scoreHud.style.position = "fixed";
+scoreHud.style.bottom = "10px";
+scoreHud.style.left = "10px";
+scoreHud.style.fontSize = "10px";
+scoreHud.style.opacity = "0.6";
+scoreHud.style.zIndex = "999";
+
+document.body.appendChild(scoreHud);
+
+setInterval(()=>{
+    scoreHud.innerText = "Score: " + state.score;
+},2000);
+
+/* =========================
+🧠 AUTO STATE CORRECTION
+========================= */
+
+setInterval(()=>{
+    if(state.mode === "low"){
+        state.wave += 1;
+    }
+
+    if(state.mode === "overloaded"){
+        state.wave -= 1;
+    }
+
+},5000);
+
+/* =========================
+🧭 NAV BAR BOOST (MVS + FOCUS)
+========================= */
+
+const nav = document.querySelector(".flex.gap-4");
+
+if(nav){
+    const btn1 = document.createElement("button");
+    btn1.innerText = "MVS";
+    btn1.className = "nav-btn";
+    btn1.onclick = renderMVS;
+
+    const btn2 = document.createElement("button");
+    btn2.innerText = "FOCUS";
+    btn2.className = "nav-btn";
+    btn2.onclick = toggleFocusMode;
+
+    nav.appendChild(btn1);
+    nav.appendChild(btn2);
+}
+
+/* =========================
+🚀 INIT
+========================= */
+
+renderMVS();
+log("🧩 MVS Engine Online");
+log("🎯 Focus Mode Ready");
+
+</script>
