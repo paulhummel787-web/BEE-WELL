@@ -2,222 +2,426 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bee Well | The Pilot & The Storm</title>
+<title>Bee Well | The Architect OS</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&family=Playfair+Display&display=swap" rel="stylesheet">
 
 <style>
 :root {
-    --bg:#050505;
-    --accent:#f59e0b;
-    --blue:#3b82f6;
+    --bg:#0a0a0a;
+    --panel:#111;
+    --accent:#facc15;
+    --text:#eee;
 }
 
 body {
-    background: radial-gradient(circle at top, #111, #000);
-    color: #f5f5f5;
-    font-family: Inter, sans-serif;
-    overflow-x:hidden;
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter;
+    overflow:hidden;
 }
 
-/* glowing blobs */
-.blob {
-    position: fixed;
-    width: 500px;
-    height: 500px;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.15;
-    z-index:-1;
-    animation: float 12s infinite ease-in-out;
-}
-.blob1 { background: orange; top:-200px; left:-200px; }
-.blob2 { background: blue; bottom:-200px; right:-200px; }
-
-@keyframes float {
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-40px)}
+/* Layout */
+#app {
+    display:flex;
+    flex-direction:column;
+    height:100vh;
 }
 
-/* cards */
-.card {
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(20px);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:24px;
+#main {
+    flex:1;
+    overflow-y:auto;
     padding:20px;
+}
+
+/* NAV */
+.nav {
+    display:flex;
+    justify-content:space-around;
+    border-top:1px solid #222;
+    padding:10px;
+}
+
+.nav button {
+    background:none;
+    border:none;
+    color:#aaa;
+    font-size:11px;
+}
+
+.nav button.active {
+    color:var(--accent);
+}
+
+/* CARDS */
+.card {
+    background:var(--panel);
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:15px;
     transition:.3s;
 }
+
 .card:hover {
-    transform:translateY(-3px);
-    border-color:rgba(255,255,255,0.2);
+    transform:scale(1.02);
 }
 
-/* button glow */
-.btn {
-    padding:12px 20px;
-    border-radius:999px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.1);
-    transition:.3s;
-}
-.btn:hover {
-    background:var(--accent);
-    color:#000;
+/* BOOK */
+.chapter {
+    font-family:"Playfair Display";
+    line-height:1.6;
+    font-size:15px;
 }
 
-/* wave slider */
-input[type=range] {
-    width:100%;
+.chapter h2 {
+    color:var(--accent);
 }
 
-/* sanctuary mode */
-body.sanctuary {
-    filter: sepia(0.3) saturate(0.7);
-    font-family: Georgia, serif;
+/* SMOOTH */
+.fade {
+    animation:fade .4s ease;
+}
+
+@keyframes fade {
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="blob blob1"></div>
-<div class="blob blob2"></div>
+<div id="app">
+    <div id="main"></div>
 
-<div class="max-w-xl mx-auto p-6 space-y-6">
-
-    <!-- HEADER -->
-    <div class="flex justify-between items-center">
-        <div>
-            <div id="clock" class="text-3xl font-mono"></div>
-            <div class="text-xs opacity-40">SYSTEM ACTIVE</div>
-        </div>
-
-        <div class="flex gap-2">
-            <button class="btn" onclick="toggleSanctuary()">Sanctuary</button>
-            <button class="btn bg-red-500/20" onclick="panic()">PANIC</button>
-        </div>
+    <div class="nav">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard">BASE</button>
+        <button onclick="switchTab('sanctuary')" id="nav-sanctuary">SANCTUARY</button>
+        <button onclick="switchTab('book')" id="nav-book">BOOK</button>
+        <button onclick="switchTab('system')" id="nav-system">SYSTEM</button>
     </div>
-
-    <!-- WAVE -->
-    <div class="card">
-        <div class="flex justify-between mb-3">
-            <span>Resiliency Wave</span>
-            <span id="waveVal">70%</span>
-        </div>
-        <input type="range" min="0" max="100" value="70" oninput="updateWave(this.value)">
-    </div>
-
-    <!-- MVS -->
-    <div class="card">
-        <div class="flex justify-between mb-3">
-            <span>MVS Protocol</span>
-            <button onclick="addTask()">+</button>
-        </div>
-        <div id="tasks"></div>
-    </div>
-
-    <!-- EXEC -->
-    <div class="card text-center">
-        <div id="timer" class="text-5xl font-mono mb-4">90</div>
-        <button class="btn" onclick="startTimer()">Start Flush</button>
-    </div>
-
-    <!-- SCRIPTURE -->
-    <div class="card">
-        <div class="text-xs opacity-40 mb-2">TRUTH ANCHOR</div>
-        <div id="scripture" class="italic"></div>
-    </div>
-
 </div>
 
 <script>
 
-/* STATE */
-let wave = 70
-let tasks = ["Drink water","Open workspace"]
-let timer = 90
-let running = false
+/* ================= STATE ================= */
 
-/* CLOCK */
-setInterval(()=>{
-    document.getElementById("clock").innerText =
-        new Date().toLocaleTimeString()
-},1000)
+const state = {
+    tab:'dashboard',
+    chapter:0
+};
 
-/* WAVE */
-function updateWave(val){
-    wave = val
-    document.getElementById("waveVal").innerText = val+"%"
+/* ================= BOOK DATA ================= */
+
+const BOOK = [
+    /* ================= SCRIPTURE + IDENTITY ENGINE ================= */
+
+const ANCHORS = {
+
+identity: [
+{
+lie:"I am a mistake",
+verse:"Psalm 139:14",
+truth:"Fearfully and wonderfully made",
+affirmation:"I am not a mistake. I am intentionally designed."
+},
+{
+lie:"I am unwanted",
+verse:"Ephesians 1:4",
+truth:"Chosen before the foundation",
+affirmation:"I am chosen. I am wanted."
+},
+{
+lie:"I am a burden",
+verse:"Psalm 55:22",
+truth:"God carries my weight",
+affirmation:"I am carried. I am not too much."
+},
+{
+lie:"I am broken",
+verse:"2 Corinthians 5:17",
+truth:"New creation",
+affirmation:"I am being made new."
+},
+{
+lie:"I am unloved",
+verse:"Romans 8:38-39",
+truth:"Nothing separates me from love",
+affirmation:"I cannot be separated from love."
 }
+],
 
-/* TASKS */
-function renderTasks(){
-    document.getElementById("tasks").innerHTML =
-        tasks.map((t,i)=>`
-        <div class="flex justify-between py-2 border-b border-white/10">
-            <span>${t}</span>
-            <button onclick="removeTask(${i})">✓</button>
-        </div>
-        `).join("")
+safety: [
+{
+verse:"Deuteronomy 31:8",
+affirmation:"I am never alone. God is already in my tomorrow."
+},
+{
+verse:"Psalm 34:18",
+affirmation:"God is closest when I feel crushed."
+},
+{
+verse:"Isaiah 43:1",
+affirmation:"I am claimed. I belong."
+},
+{
+verse:"Psalm 27:10",
+affirmation:"Even if people fail me, I am still held."
 }
-renderTasks()
+],
 
-function addTask(){
-    const t = prompt("2-minute step:")
-    if(t){ tasks.push(t); renderTasks() }
+peace: [
+{
+verse:"2 Timothy 1:7",
+affirmation:"I reject fear. I have a sound mind."
+},
+{
+verse:"Isaiah 26:3",
+affirmation:"My mind can enter perfect peace."
+},
+{
+verse:"Philippians 4:7",
+affirmation:"Peace is guarding my mind right now."
+},
+{
+verse:"1 Corinthians 14:33",
+affirmation:"Confusion is not from God."
 }
-function removeTask(i){
-    tasks.splice(i,1)
-    renderTasks()
+],
+
+strength: [
+{
+verse:"Philippians 4:13",
+affirmation:"I have strength for this one step."
+},
+{
+verse:"2 Corinthians 12:9",
+affirmation:"Power shows up in my weakness."
+},
+{
+verse:"Isaiah 40:31",
+affirmation:"My strength is being renewed."
+},
+{
+verse:"Psalm 142:3",
+affirmation:"Even if I don’t see the path, it exists."
 }
-
-/* TIMER */
-function startTimer(){
-    if(running) return
-    running = true
-
-    const interval = setInterval(()=>{
-        timer--
-        document.getElementById("timer").innerText = timer
-
-        if(timer<=0){
-            clearInterval(interval)
-            timer = 90
-            running=false
-            alert("Reset complete")
-        }
-    },1000)
-}
-
-/* PANIC */
-function panic(){
-    alert("Breathe. Cold water. One step.")
-}
-
-/* SANCTUARY */
-function toggleSanctuary(){
-    document.body.classList.toggle("sanctuary")
-    nextScripture()
-}
-
-/* SCRIPTURES */
-const scriptures = [
-"I am fearfully and wonderfully made — Psalm 139:14",
-"I am chosen — Ephesians 1:4",
-"I am never alone — Deuteronomy 31:8",
-"I have a sound mind — 2 Timothy 1:7",
-"I have strength for this step — Philippians 4:13"
 ]
 
-function nextScripture(){
-    const s = scriptures[Math.floor(Math.random()*scriptures.length)]
-    document.getElementById("scripture").innerText = s
+};
+{
+title:"Chapter 1: The Landscape of the Storm",
+text:`The complex mind does not experience challenges in isolation...
+It lives within a “Symptom Soup”...`
+},
+{
+title:"Chapter 2: The Anatomy of Shutdown",
+text:`Shutdown is not a failure of will; it is a biological evacuation protocol...`
+},
+{
+title:"Chapter 3: The Architect vs The Pilot",
+text:`The Pilot reacts. The Architect designs...`
+},
+{
+title:"Chapter 4: Colour Frequencies",
+text:`The brain cannot process complexity under load. It processes colour...`
+},
+{
+title:"Chapter 5: Prime Directive",
+text:`Fix the state, then take the step.`
+},
+
+{
+title:"Chapter 6: The 90 Second Rule",
+text:`All emotional waves are chemical. They pass...`
+},
+{
+title:"Chapter 7: Time Blindness",
+text:`Time is either Now or Not Now...`
+},
+{
+title:"Chapter 8: Habit Scaffold",
+text:`Automation beats willpower...`
+},
+{
+title:"Chapter 9: Fueling Logic",
+text:`Biology before psychology...`
+},
+{
+title:"Chapter 10: Fire Kit",
+text:`Pre-built tools for zero cognition states...`
+},
+
+{
+title:"Chapter 11: Anxiety Pulse",
+text:`Anxiety simulates future threats...`
+},
+{
+title:"Chapter 12: ADHD Current",
+text:`The mind cannot land...`
+},
+{
+title:"Chapter 13: Emotional Heat",
+text:`Emotions spike to 100 instantly...`
+},
+{
+title:"Chapter 14: CPTSD Shadows",
+text:`The past leaks into present safety...`
+},
+
+{
+title:"Chapter 17: Minimum Viable Shift",
+text:`Small actions break inertia...`
+},
+{
+title:"Chapter 18: 10/20 Brakes",
+text:`Interrupt loops physically...`
+},
+{
+title:"Chapter 19: Memory Shield",
+text:`Externalize everything...`
+},
+
+{
+title:"Chapter 20: Sanctuary Design",
+text:`Reduce sensory noise...`
+},
+{
+title:"Chapter 21: Social Governor",
+text:`Boundaries preserve energy...`
+},
+{
+title:"Chapter 22: Sensory Override",
+text:`Use biology, not logic...`
+},
+{
+title:"Chapter 23: Reporting Visibility",
+text:`Use colors to communicate state...`
+},
+
+{
+title:"Chapter 24: Sleep Docking",
+text:`Sleep is system repair...`
+},
+{
+title:"Chapter 25: Medication Ledger",
+text:`Track patterns...`
+},
+{
+title:"Chapter 26: Metabolic Reset",
+text:`Move to reset mind...`
+},
+{
+title:"Chapter 27: Daily Ledger",
+text:`Track wins...`
+},
+
+{
+title:"Chapter 28: Strategic Dropping",
+text:`Remove noise...`
+},
+{
+title:"Chapter 29: Chasing the Fox",
+text:`Focus on ONE high-value target...`
+},
+{
+title:"Chapter 30: Bodyguards",
+text:`Internal protectors exist...`
+},
+{
+title:"Chapter 31: Identity Anchors",
+text:`Truth > Feelings`
+},
+{
+title:"Chapter 32: Support Grid",
+text:`You are not meant to fly alone...`
+},
+{
+title:"Chapter 33: The Creed",
+text:`I do not fight my nature. I design for it...`
 }
-nextScripture()
+];
+
+/* ================= RENDER ================= */
+
+function switchTab(tab){
+    state.tab = tab;
+    render();
+}
+
+function render(){
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    document.getElementById('nav-'+state.tab)?.classList.add('active');
+
+    const main = document.getElementById('main');
+
+    if(state.tab === 'dashboard'){
+        main.innerHTML = `
+        <div class="card fade">
+            <h2>🐝 Bee Well System</h2>
+            <p>Clarity. Calm. Direction.</p>
+        </div>
+
+        <div class="card">
+            <p><b>Prime Directive:</b> Fix the State → Then the Step</p>
+        </div>
+        `;
+    }
+
+    if(state.tab === 'sanctuary'){
+        main.innerHTML = `
+        <div class="card fade">
+            <h2>🕊 Sanctuary</h2>
+            <p>"If you had 10% more courage, what would you do?"</p>
+        </div>
+        `;
+    }
+
+    if(state.tab === 'book'){
+        const c = BOOK[state.chapter];
+
+        main.innerHTML = `
+        <div class="card chapter fade">
+            <h2>${c.title}</h2>
+            <p>${c.text}</p>
+
+            <br>
+            <button onclick="prev()">←</button>
+            <button onclick="next()">→</button>
+        </div>
+        `;
+    }
+
+    if(state.tab === 'system'){
+        main.innerHTML = `
+        <div class="card fade">
+            <h2>System Core</h2>
+            <p>Memory Shield, Bodyguards, Audits active.</p>
+        </div>
+        `;
+    }
+}
+
+function next(){
+    if(state.chapter < BOOK.length-1){
+        state.chapter++;
+        render();
+    }
+}
+
+function prev(){
+    if(state.chapter > 0){
+        state.chapter--;
+        render();
+    }
+}
+
+/* INIT */
+render();
 
 </script>
-
 </body>
 </html>
