@@ -2,267 +2,255 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>The Pilot and the Storm</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
 <title>Architect OS — Bee Well</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-body { <div class="bg-blob"></div>
-<div class="bg-blob"></div>
+body {
     background:#0a0a0a;
     color:white;
     font-family: system-ui;
-    transition: all .6s ease;
+    transition:.4s;
 }
 
-/* SANCTUARY MODE */
-body.sanctuary {
-    background:#050508;
-    filter:saturate(.8) contrast(.9);
+/* BLOBS */
+.bg-blob{
+    position:fixed;
+    width:400px;
+    height:400px;
+    background:radial-gradient(circle,#6366f1,transparent);
+    filter:blur(120px);
+    opacity:.2;
+    z-index:-1;
 }
+.bg-blob:nth-child(1){top:-100px;left:-100px;}
+.bg-blob:nth-child(2){bottom:-100px;right:-100px;}
 
-/* GLASS UI */
-.glass {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(14px);
+/* GLASS */
+.glass{
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(14px);
     border:1px solid rgba(255,255,255,0.08);
 }
 
 /* NAV */
-.nav-btn.active {
+.nav-btn{
+    opacity:.4;
+    transition:.2s;
+}
+.nav-btn.active{
     opacity:1;
     color:#818cf8;
 }
 
-.nav-btn {
-    opacity:.4;
-    transition:.2s;
-}
-
-/* FADE */
-.fade {
-    animation: fade .3s ease;
-}
-
-@keyframes fade {
-    from {opacity:0; transform:translateY(6px)}
-    to {opacity:1}
-}
-
 /* TERMINAL */
-.terminal {
+.terminal{
     background:black;
     color:#0f0;
-    font-family: monospace;
+    font-family:monospace;
 }
-
 </style>
 </head>
 
-<body class="p-4">
+<body class="p-6">
+
+<div class="bg-blob"></div>
+<div class="bg-blob"></div>
+
+<h1 class="text-2xl font-bold mb-6">The Pilot and the Storm</h1>
 
 <!-- NAV -->
-<div class="flex gap-4 mb-4 text-xs uppercase font-bold">
+<div class="flex gap-4 mb-6 text-xs uppercase font-bold">
     <button class="nav-btn active" onclick="switchTab('base')">Base</button>
     <button class="nav-btn" onclick="switchTab('book')">Book</button>
     <button class="nav-btn" onclick="switchTab('anchor')">Anchors</button>
     <button class="nav-btn" onclick="switchTab('terminal')">Terminal</button>
 </div>
 
-<!-- MAIN -->
-<div id="view" class="fade"></div>
+<!-- VIEW -->
+<div id="view"></div>
 
 <script>
 
-/* =========================
-STATE
-========================= */
+/* STATE */
 const state = {
     tab:'base',
     wave:70,
-    integrity:50,
-    sanctuary:false,
-    logs:[]
+    integrity:50
 };
 
-/* =========================
-BOOK (33 chapters)
-========================= */
+/* COLORS */
+const COLORS = {
+    yellow:"ADHD Static",
+    red:"Emotional Heat",
+    blue:"Depression Gravity",
+    purple:"Anxiety Pulse",
+    grey:"Dissociation Fog",
+    orange:"Urgency Panic"
+};
+
+/* BOOK */
 const BOOK = [
-"Symptom Soup — everything overlaps.",
-"Shutdown is protection.",
-"Pilot vs Architect.",
-"Color over thinking.",
-"Fix state first.",
-
-"90 second emotions.",
-"Time blindness.",
-"Habit stacking.",
-"Fueling logic.",
-"Fire kit.",
-
-"Anxiety = simulation.",
-"ADHD scatter.",
-"Emotional heat.",
-"CPTSD shadow.",
-"Depression gravity.",
-
-"Dissociation fog.",
-"MVS = one step.",
-"10/20 brakes.",
-"Memory shield.",
-
-"Sanctuary design.",
-"Social governor.",
-"Sensory override.",
-"Report color.",
-
-"Sleep docking.",
-"Medication tracking.",
-"Movement reset.",
-"Daily wins.",
-
-"Strategic drop.",
-"Chase the fox.",
-"Bodyguards.",
-"Identity anchors.",
-"Support grid.",
-"Architect creed."
+{title:"Chapter 1",content:"You are navigating a storm."},
+{title:"Chapter 2",content:"Shutdown is protection."},
+{title:"Chapter 3",content:"Pilot vs Architect."},
+{title:"Chapter 4",content:"Use color instead of overthinking."},
+{title:"Chapter 5",content:"Fix state first."},
+{title:"Chapter 6",content:"90 second emotions."},
+{title:"Chapter 7",content:"Time blindness."},
+{title:"Chapter 8",content:"Habit stacking."},
+{title:"Chapter 9",content:"Fuel matters."},
+{title:"Chapter 10",content:"Fire kit."},
+{title:"Chapter 11",content:"Anxiety simulates danger."},
+{title:"Chapter 12",content:"Force landing."},
+{title:"Chapter 13",content:"Delay reaction."},
+{title:"Chapter 14",content:"Past patterns."},
+{title:"Chapter 15",content:"Move one pebble."},
+{title:"Chapter 16",content:"Return through body."},
+{title:"Chapter 17",content:"One step."},
+{title:"Chapter 18",content:"Break loops."},
+{title:"Chapter 19",content:"Write everything."},
+{title:"Chapter 20",content:"Reduce noise."},
+{title:"Chapter 21",content:"Boundaries."},
+{title:"Chapter 22",content:"Body resets brain."},
+{title:"Chapter 23",content:"Report color."},
+{title:"Chapter 24",content:"Sleep matters."},
+{title:"Chapter 25",content:"Track patterns."},
+{title:"Chapter 26",content:"Move body."},
+{title:"Chapter 27",content:"Record wins."},
+{title:"Chapter 28",content:"Drop tasks."},
+{title:"Chapter 29",content:"Chase the fox."},
+{title:"Chapter 30",content:"Bodyguards."},
+{title:"Chapter 31",content:"Truth > feelings."},
+{title:"Chapter 32",content:"Support grid."},
+{title:"Chapter 33",content:"You are the Architect."}
 ];
 
-/* =========================
-SCRIPTURE ENGINE
-========================= */
+/* ANCHORS */
 const ANCHORS = [
-["I am a mistake","Psalm 139:14","I am fearfully made"],
-["I am unwanted","Ephesians 1:4","I am chosen"],
-["I am alone","Deuteronomy 31:8","God is ahead of me"],
-["I am overwhelmed","2 Tim 1:7","I have a sound mind"],
-["I can't","Phil 4:13","I can take one step"]
+{lie:"I am a mistake",truth:"Psalm 139:14",affirmation:"I am fearfully made"},
+{lie:"I am unwanted",truth:"Ephesians 1:4",affirmation:"I am chosen"},
+{lie:"I am alone",truth:"Deuteronomy 31:8",affirmation:"God is with me"},
+{lie:"I am overwhelmed",truth:"2 Timothy 1:7",affirmation:"I have a sound mind"},
+{lie:"I can't",truth:"Philippians 4:13",affirmation:"I can take one step"}
 ];
 
 let anchorIndex=0;
 
-/* =========================
-RENDER
-========================= */
+/* NAV */
 function switchTab(tab){
     state.tab=tab;
 
     document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+    event.target.classList.add('active');
 
     render();
 }
 
+/* RENDER */
 function render(){
     const v=document.getElementById('view');
 
     if(state.tab==='base'){
         v.innerHTML=`
-        <div class="space-y-4 fade">
+        <div class="grid grid-cols-2 gap-4">
 
-            <div class="glass p-4 rounded-xl">
-                <p class="text-xs opacity-50">Wave</p>
-                <p class="text-xl">${state.wave}%</p>
+            <div class="glass p-5">
+                <p class="text-xs opacity-40">Wave</p>
+                <p class="text-2xl">${state.wave}%</p>
             </div>
 
-            <div class="glass p-4 rounded-xl">
-                <p class="text-xs opacity-50">Integrity</p>
-                <p class="text-xl">${state.integrity}%</p>
+            <div class="glass p-5">
+                <p class="text-xs opacity-40">Integrity</p>
+                <p class="text-2xl">${state.integrity}%</p>
             </div>
 
-            <button onclick="toggleSanctuary()" class="glass p-3 rounded-xl w-full">
-                ${state.sanctuary?'Exit Sanctuary':'Enter Sanctuary'}
-            </button>
+            <div class="glass p-5 col-span-2">
+                <p class="text-xs mb-2 opacity-40">State Colors</p>
+                ${Object.entries(COLORS).map(([c,t])=>`
+                    <div class="text-sm">${c.toUpperCase()} — ${t}</div>
+                `).join('')}
+            </div>
 
         </div>`;
     }
 
     if(state.tab==='book'){
         v.innerHTML=`
-        <div class="space-y-2 fade">
-            ${BOOK.map((c,i)=>`
-                <div class="glass p-3 rounded-xl text-sm">
-                    <b>Chapter ${i+1}</b><br>${c}
-                </div>
-            `).join('')}
+        <div class="grid md:grid-cols-4 gap-4">
+
+            <div class="glass p-3 h-[70vh] overflow-y-auto">
+                ${BOOK.map((ch,i)=>`
+                    <button onclick="loadChapter(${i})"
+                    class="block w-full text-left text-xs py-2 opacity-60 hover:opacity-100">
+                    ${ch.title}
+                    </button>
+                `).join('')}
+            </div>
+
+            <div id="chapterView" class="glass p-6 md:col-span-3 h-[70vh] overflow-y-auto"></div>
+
         </div>`;
+        loadChapter(0);
     }
 
     if(state.tab==='anchor'){
         const a=ANCHORS[anchorIndex];
         v.innerHTML=`
-        <div class="glass p-6 rounded-xl fade">
-            <p class="opacity-40 text-xs">Lie</p>
-            <p>${a[0]}</p>
+        <div class="glass p-6 text-center">
 
-            <p class="opacity-40 text-xs mt-3">${a[1]}</p>
-            <p>${a[2]}</p>
+            <p class="opacity-40 text-xs">Lie</p>
+            <p class="text-red-400 mb-4">${a.lie}</p>
+
+            <p class="opacity-40 text-xs">${a.truth}</p>
+            <p class="text-indigo-400">${a.affirmation}</p>
 
             <button onclick="nextAnchor()" class="mt-4 px-4 py-2 bg-indigo-500 rounded">
                 Next
             </button>
+
         </div>`;
     }
 
     if(state.tab==='terminal'){
         v.innerHTML=`
-        <div class="terminal p-4 rounded-xl">
+        <div class="terminal p-4 rounded">
+
             <div id="output" class="h-40 overflow-y-auto text-xs"></div>
-            <input id="cmd" class="w-full mt-2 bg-black outline-none" placeholder="/help"
-            onkeydown="handleCmd(event)">
+
+            <input id="cmd" class="w-full bg-black mt-2 outline-none"
+            placeholder="/help"
+            onkeydown="cmdHandler(event)">
+
         </div>`;
     }
 }
 
-/* =========================
-FUNCTIONS
-========================= */
-
-function toggleSanctuary(){
-    state.sanctuary=!state.sanctuary;
-    document.body.classList.toggle('sanctuary');
+/* BOOK LOAD */
+function loadChapter(i){
+    const ch=BOOK[i];
+    document.getElementById('chapterView').innerHTML=`
+        <h2 class="text-lg font-bold mb-4">${ch.title}</h2>
+        <p>${ch.content}</p>
+    `;
 }
 
+/* ANCHOR */
 function nextAnchor(){
     anchorIndex=(anchorIndex+1)%ANCHORS.length;
     render();
 }
 
 /* TERMINAL */
-function handleCmd(e){
+function cmdHandler(e){
     if(e.key==="Enter"){
         const val=e.target.value;
         log("> "+val);
 
-        if(val==="/help"){
-            log("/wave /anchor /sanctuary");
-        }
+        if(val==="/wave 100") state.wave=100;
+        if(val==="/anchor") switchTab('anchor');
 
-        if(val.startsWith("/wave")){
-            const num=parseInt(val.split(" ")[1]);
-            if(num) state.wave=num;
-            render();
-        }
-
-        if(val==="/anchor"){
-            switchTab('anchor');
-        }
-
-        if(val==="/sanctuary"){
-            toggleSanctuary();
-        }
-
+        render();
         e.target.value="";
     }
 }
@@ -271,365 +259,196 @@ function log(msg){
     const out=document.getElementById('output');
     if(!out) return;
     out.innerHTML+=`<div>${msg}</div>`;
-    out.scrollTop=out.scrollHeight;
 }
 
 /* INIT */
-renderif(state.tab==='base'){
-    v.innerHTML=`
-    <div class="grid grid-cols-2 gap-4 fade">
-
-        <div class="glass metric p-5">
-            <p class="text-xs opacity-40">Resiliency Wave</p>
-            <p class="text-2xl font-mono">${state.wave}%</p>
-        </div>
-
-        <div class="glass metric p-5">
-            <p class="text-xs opacity-40">Integrity</p>
-            <p class="text-2xl font-mono">${state.integrity}%</p>
-        </div>
-
-        <button onclick="toggleSanctuary()" class="btn p-4 col-span-2 rounded-xl text-xs uppercase tracking-widest">
-            ${state.sanctuary?'Exit Sanctuary':'Enter Sanctuary'}
-        </button>
-
-    </div>`;
-}
+render();
 
 </script>
 
 </body>
 </html>
-</style>
-</head>
-
-<body class="p-6">
-
-<h1 class="text-2xl font-bold mb-6">The Pilot and the Storm</h1>
-
-<div class="grid grid-cols-4 gap-4">
-
-<!-- SIDEBAR -->
-<div class="col-span-1 glass p-4 rounded-xl h-[80vh] overflow-y-auto">
-    <h2 class="text-xs uppercase opacity-50 mb-3">Chapters</h2>
-    <div id="chapter-list"></div>
-</div>
-
-<!-- MAIN VIEW -->
-<div class="col-span-3 space-y-6">
-
-    <div id="chapter-view" class="glass p-6 rounded-xl"></div>
-
-    <!-- SCRIPTURE ENGINE -->
-    <div class="glass p-6 rounded-xl">
-        <h2 class="text-xs uppercase opacity-50 mb-4">Identity Anchors</h2>
-        <button onclick="nextAnchor()" class="px-4 py-2 bg-indigo-500 rounded">Next Anchor</button>
-
-        <div id="anchor-display" class="mt-4 space-y-2"></div>
-    </div>
-
-</div>
-
-</div>
-
 <script>
 
 /* =========================
-   📖 BOOK ENGINE (33 CHAPTERS)
+COLOR SYSTEM (6 STATES)
 ========================= */
-if(state.tab==='book'){
-    v.innerHTML=`
-    <div class="space-y-4 fade max-w-2xl mx-auto">
-        ${BOOK.map((c,i)=>`
-            <div class="glass p-5 hover:scale-[1.01] transition">
-                <p class="text-xs opacity-40 mb-2">Chapter ${i+1}</p>
-                <p class="text-sm leading-relaxed">${c}</p>
-            </div>
+
+const COLORS = {
+    yellow:{name:"Static",desc:"ADHD overload"},
+    red:{name:"Heat",desc:"Emotional spike"},
+    blue:{name:"Gravity",desc:"Depression"},
+    purple:{name:"Pulse",desc:"Anxiety"},
+    grey:{name:"Fog",desc:"Dissociation"},
+    orange:{name:"Urgency",desc:"Time panic"}
+};
+
+function setColor(c){
+    state.color=c;
+    render();
+}
+
+/* COLOR UI */
+function renderColors(){
+    return `
+    <div class="grid grid-cols-3 gap-2 mt-4">
+        ${Object.keys(COLORS).map(c=>`
+        <button onclick="setColor('${c}')"
+        class="glass p-3 rounded-xl text-xs hover:scale-105 transition">
+        ${c.toUpperCase()}
+        </button>
         `).join('')}
     </div>`;
 }
-const BOOK = [
-{title:"1. The Landscape of the Storm", content:`The complex mind lives in a Symptom Soup...`},
-{title:"2. The Anatomy of Shutdown", content:`Shutdown is not failure...`},
-{title:"3. The Architect vs The Pilot", content:`Two roles govern the system...`},
-{title:"4. Colour Frequencies", content:`Use colour instead of analysis...`},
-{title:"5. Prime Directive", content:`Fix the state, then the step.`},
-
-{title:"6. The 90-Second Rule", content:`Emotions last 90 seconds chemically.`},
-{title:"7. Time Blindness", content:`Time must be externalized.`},
-{title:"8. Habit Stacking", content:`Attach new habits to old ones.`},
-{title:"9. Fueling Logic", content:`Body dictates mind.`},
-{title:"10. Fire Kit", content:`Pre-built tools for crisis.`},
-
-{title:"11. Anxiety Pulse", content:`Anxiety simulates danger.`},
-{title:"12. ADHD Scatter", content:`Attention cannot land.`},
-{title:"13. Emotional Heat", content:`Feelings hit instantly.`},
-{title:"14. CPTSD Shadow", content:`Past informs present threat.`},
-{title:"15. Depression Gravity", content:`Energy collapses inward.`},
-
-{title:"16. Dissociation Fog", content:`System disconnects.`},
-{title:"17. MVS Protocol", content:`Move one pebble.`},
-{title:"18. 10/20 Brakes", content:`Interrupt loops physically.`},
-{title:"19. Memory Shield", content:`Externalize all thoughts.`},
-
-{title:"20. Sanctuary Design", content:`Reduce sensory noise.`},
-{title:"21. Social Governor", content:`Use boundaries.`},
-{title:"22. Sensory Override", content:`Use body to reset brain.`},
-{title:"23. Reporting Visibility", content:`Use color instead of explanation.`},
-
-{title:"24. Sleep Docking", content:`Sleep is system repair.`},
-{title:"25. Medication Ledger", content:`Track signal vs noise.`},
-{title:"26. Metabolic Reset", content:`Move body to reset state.`},
-{title:"27. Daily Ledger", content:`Record wins.`},
-
-{title:"28. Strategic Filter", content:`Drop non-essential tasks.`},
-{title:"29. Chase the Fox", content:`Focus on one high-impact task.`},
-{title:"30. Bodyguards", content:`Protective patterns exist.`},
-{title:"31. Identity Anchors", content:`Truth over feelings.`},
-{title:"32. Support Grid", content:`You need people.`},
-{title:"33. The Architect’s Creed", content:`You are built to navigate.`}
-];
-
-
-/* =========================
-   🧠 SCRIPTURE ENGINE
-========================= */
-if(state.tab==='anchor'){
-    const a=ANCHORS[anchorIndex];
-    v.innerHTML=`
-    <div class="glass p-8 text-center fade max-w-md mx-auto">
-
-        <p class="text-xs opacity-30 mb-2">THE LIE</p>
-        <p class="text-lg mb-6 text-red-400">${a[0]}</p>
-
-        <p class="text-xs opacity-30">${a[1]}</p>
-        <p class="text-xl text-indigo-400 mt-2">${a[2]}</p>
-
-        <button onclick="nextAnchor()" class="btn mt-6 px-6 py-3 rounded-full text-xs">
-            NEXT TRUTH
-        </button>
-
-    </div>`;
-}if(state.tab==='terminal'){
-    v.innerHTML=`
-    <div class="terminal p-4">
-        <div id="output" class="h-40 overflow-y-auto text-xs mb-2"></div>
-        <input id="cmd" class="w-full bg-black outline-none text-green-400"
-        placeholder="> /help"
-        onkeydown="handleCmd(event)">
-    </div>`;
-}
-const ANCHORS = [
-{
-lie:"I am a mistake",
-truth:"Psalm 139:14",
-affirmation:"I am fearfully and wonderfully made."
-},
-{
-lie:"I am unwanted",
-truth:"Ephesians 1:4",
-affirmation:"I am chosen."
-},
-{
-lie:"I am alone",
-truth:"Deuteronomy 31:8",
-affirmation:"God is already in my tomorrow."
-},
-{
-lie:"I am overwhelmed",
-truth:"2 Timothy 1:7",
-affirmation:"I have a sound mind."
-},
-{
-lie:"I can't do this",
-truth:"Philippians 4:13",
-affirmation:"I can take one step."
-}
-];
-
-
-/* =========================
-   ⚙️ UI LOGIC
-========================= */
-
-const chapterList = document.getElementById('chapter-list');
-const chapterView = document.getElementById('chapter-view');
-
-BOOK.forEach((ch, i) => {
-    const btn = document.createElement('button');
-    btn.className = "block w-full text-left text-xs py-1 opacity-60 hover:opacity-100";
-    btn.innerText = ch.title;
-    btn.onclick = () => loadChapter(i);
-    chapterList.appendChild(btn);
-});
-
-function loadChapter(i) {
-    const ch = BOOK[i];
-    chapterView.innerHTML = `
-        <h2 class="text-lg font-bold mb-4">${ch.title}</h2>
-        <p class="opacity-70">${ch.content}</p>
-    `;
-}
-
-loadChapter(0);
-
-
-/* =========================
-   🔁 ANCHOR ROTATOR
-========================= */
-
-let anchorIndex = 0;
-
-function nextAnchor() {
-    const a = ANCHORS[anchorIndex];
-
-    document.getElementById('anchor-display').innerHTML = `
-        <div class="anchor">
-            <p class="text-xs opacity-40">Lie</p>
-            <p>${a.lie}</p>
-        </div>
-        <div class="anchor">
-            <p class="text-xs opacity-40">Truth (${a.truth})</p>
-            <p>${a.affirmation}</p>
-        </div>
-    `;
-
-    anchorIndex = (anchorIndex + 1) % ANCHORS.length;
-}
-
-nextAnchor();
 
 </script>
+<script>
 
-</body>
-</html>
-const BOOK=[
-{title:"1. The Landscape of the Storm",content:`The complex mind lives in a Symptom Soup where states overlap.`},
-{title:"2. The Anatomy of Shutdown",content:`Shutdown is protection, not failure.`},
-{title:"3. The Architect vs The Pilot",content:`The Pilot reacts. The Architect designs.`},
-{title:"4. Colour Frequencies",content:`Use color instead of overthinking.`},
-{title:"5. Prime Directive",content:`Fix the state, then the step.`},
+/* =========================
+BASE VIEW
+========================= */
 
-{title:"6. 90-Second Rule",content:`Emotions pass chemically.`},
-{title:"7. Time Blindness",content:`Time must be externalized.`},
-{title:"8. Habit Stacking",content:`Attach habits together.`},
-{title:"9. Fueling Logic",content:`Biology drives mind.`},
-{title:"10. Fire Kit",content:`Prepare tools before crisis.`},
+function renderBase(){
+    return `
+    <div class="grid grid-cols-2 gap-4 fade">
 
-{title:"11. Anxiety Pulse",content:`Anxiety simulates danger.`},
-{title:"12. ADHD Scatter",content:`Attention cannot land.`},
-{title:"13. Emotional Heat",content:`Feelings spike fast.`},
-{title:"14. CPTSD Shadow",content:`Past bleeds into present.`},
-{title:"15. Depression Gravity",content:`Energy collapses.`},
+        <div class="glass p-5">
+            <p class="text-xs opacity-40">Wave</p>
+            <p class="text-2xl">${state.wave}%</p>
+        </div>
 
-{title:"16. Dissociation Fog",content:`System disconnects.`},
-{title:"17. MVS Protocol",content:`Move one step.`},
-{title:"18. 10/20 Brakes",content:`Interrupt loops.`},
-{title:"19. Memory Shield",content:`Externalize everything.`},
+        <div class="glass p-5">
+            <p class="text-xs opacity-40">Integrity</p>
+            <p class="text-2xl">${state.integrity}%</p>
+        </div>
 
-{title:"20. Sanctuary Design",content:`Reduce noise.`},
-{title:"21. Social Governor",content:`Protect energy.`},
-{title:"22. Sensory Override",content:`Body resets brain.`},
-{title:"23. Reporting Visibility",content:`Use color language.`},
+        <div class="glass p-5 col-span-2">
+            <p class="text-xs opacity-40 mb-2">State Selection</p>
+            ${renderColors()}
+        </div>
 
-{title:"24. Sleep Docking",content:`Sleep repairs.`},
-{title:"25. Medication Ledger",content:`Track patterns.`},
-{title:"26. Metabolic Reset",content:`Move to reset.`},
-{title:"27. Daily Ledger",content:`Log wins.`},
+        ${renderGuidance()}
 
-{title:"28. Strategic Filter",content:`Drop noise.`},
-{title:"29. Chase the Fox",content:`Focus one task.`},
-{title:"30. Bodyguards",content:`Patterns protect.`},
-{title:"31. Identity Anchors",content:`Truth over feelings.`},
-{title:"32. Support Grid",content:`Use people.`},
-{title:"33. Architect’s Creed",content:`You are built to navigate.`}
-];
+    </div>`;
+}
 
-const ANCHORS=[
-{lie:"I am a mistake",truth:"Psalm 139:14",affirmation:"I am fearfully and wonderfully made."},
-{lie:"I am unwanted",truth:"Ephesians 1:4",affirmation:"I am chosen."},
-{lie:"I am alone",truth:"Deuteronomy 31:8",affirmation:"I am never alone."},
-{lie:"I am overwhelmed",truth:"2 Timothy 1:7",affirmation:"I have a sound mind."},
-{lie:"I can't do this",truth:"Philippians 4:13",affirmation:"I can take one step."}
-];
+function renderGuidance(){
+    if(!state.color) return "";
 
-let anchorIndex=0;
-let chapterIndex=0;
+    const map={
+        yellow:"Too many inputs. Land one task.",
+        red:"Pause. 90 seconds. No reaction.",
+        blue:"Shrink task. Move one pebble.",
+        purple:"This wave will pass.",
+        grey:"Reconnect through body.",
+        orange:"Slow down. You are not late."
+    };
+
+    return `
+    <div class="glass p-4 col-span-2">
+        <p class="text-xs opacity-40">Guidance</p>
+        <p>${map[state.color]}</p>
+    </div>`;
+}
+
+</script>
+<script>
+
+/* =========================
+NAV + RENDER
+========================= */
+
 function switchTab(tab){
     state.tab=tab;
+
     document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+    event.target.classList.add('active');
+
     render();
 }
 
 function render(){
     const v=document.getElementById('view');
 
-    if(state.tab==='base'){
-        v.innerHTML=`
-        <div class="grid grid-cols-2 gap-4 fade">
-            <div class="glass p-4">
-                <p class="text-xs opacity-40">Wave</p>
-                <p class="text-xl">${state.wave}%</p>
-            </div>
-
-            <div class="glass p-4">
-                <p class="text-xs opacity-40">Integrity</p>
-                <p class="text-xl">${state.integrity}%</p>
-            </div>
-
-            <button onclick="toggleSanctuary()" class="glass p-3 col-span-2">
-                ${state.sanctuary?'Exit Sanctuary':'Enter Sanctuary'}
-            </button>
-        </div>`;
-    }
-
-    if(state.tab==='book'){
-        const ch=BOOK[chapterIndex];
-        v.innerHTML=`
-        <div class="space-y-4 fade max-w-xl">
-            <div class="glass p-6">
-                <p class="text-xs opacity-40 mb-2">${ch.title}</p>
-                <p>${ch.content}</p>
-            </div>
-
-            <div class="flex gap-2">
-                <button onclick="prevChapter()" class="glass px-4 py-2">Prev</button>
-                <button onclick="nextChapter()" class="glass px-4 py-2">Next</button>
-            </div>
-        </div>`;
-    }
-
-    if(state.tab==='anchor'){
-        const a=ANCHORS[anchorIndex];
-        v.innerHTML=`
-        <div class="glass p-6 text-center fade max-w-md">
-            <p class="text-xs opacity-40">Lie</p>
-            <p class="text-red-400 mb-4">${a.lie}</p>
-
-            <p class="text-xs opacity-40">${a.truth}</p>
-            <p class="text-indigo-400 text-lg mt-2">${a.affirmation}</p>
-
-            <button onclick="nextAnchor()" class="mt-6 px-4 py-2 bg-indigo-500 rounded">
-                Next
-            </button>
-        </div>`;
-    }
-
-    if(state.tab==='terminal'){
-        v.innerHTML=`
-        <div class="terminal p-4 rounded">
-            <div id="out" class="h-40 overflow-y-auto text-xs"></div>
-            <input id="cmd" class="w-full mt-2 bg-black outline-none"
-            placeholder="/help"
-            onkeydown="handleCmd(event)">
-        </div>`;
-    }
+    if(state.tab==='base') v.innerHTML=renderBase();
+    if(state.tab==='book') v.innerHTML=renderBook();
+    if(state.tab==='anchor') v.innerHTML=renderAnchor();
+    if(state.tab==='terminal') v.innerHTML=renderTerminal();
 }
 
-function toggleSanctuary(){
-    state.sanctuary=!state.sanctuary;
-    document.body.classList.toggle('sanctuary');
+</script>
+<script>
+
+/* =========================
+BOOK SYSTEM (EXPANDABLE)
+========================= */
+
+const BOOK = [];
+
+function addChapter(title,content){
+    BOOK.push({title,content});
+}
+
+function renderBook(){
+    return `
+    <div class="grid md:grid-cols-4 gap-4 fade">
+
+        <div class="glass p-3 h-[70vh] overflow-y-auto">
+            ${BOOK.map((c,i)=>`
+            <button onclick="loadChapter(${i})"
+            class="block w-full text-left text-xs py-2 opacity-60 hover:opacity-100">
+            ${c.title}
+            </button>`).join('')}
+        </div>
+
+        <div id="chapterView"
+        class="glass p-6 md:col-span-3 h-[70vh] overflow-y-auto"></div>
+
+    </div>`;
+}
+
+function loadChapter(i){
+    const c=BOOK[i];
+    document.getElementById('chapterView').innerHTML=`
+        <h2 class="text-lg font-bold mb-4">${c.title}</h2>
+        <p class="opacity-80">${c.content}</p>
+    `;
+}
+
+</script>
+<script>
+
+/* =========================
+ANCHOR SYSTEM
+========================= */
+
+const ANCHORS=[];
+let anchorIndex=0;
+
+function addAnchor(lie,truth,affirmation){
+    ANCHORS.push({lie,truth,affirmation});
+}
+
+function renderAnchor(){
+    if(ANCHORS.length===0) return `<div>No anchors loaded</div>`;
+
+    const a=ANCHORS[anchorIndex];
+
+    return `
+    <div class="glass p-6 text-center fade">
+
+        <p class="text-xs opacity-40">Lie</p>
+        <p class="text-red-400 mb-4">${a.lie}</p>
+
+        <p class="text-xs opacity-40">${a.truth}</p>
+        <p class="text-indigo-400">${a.affirmation}</p>
+
+        <button onclick="nextAnchor()"
+        class="mt-4 px-4 py-2 bg-indigo-500 rounded">
+        Next
+        </button>
+
+    </div>`;
 }
 
 function nextAnchor(){
@@ -637,14 +456,25 @@ function nextAnchor(){
     render();
 }
 
-function nextChapter(){
-    chapterIndex=(chapterIndex+1)%BOOK.length;
-    render();
-}
+</script>
+<script>
 
-function prevChapter(){
-    chapterIndex=(chapterIndex-1+BOOK.length)%BOOK.length;
-    render();
+/* =========================
+TERMINAL
+========================= */
+
+function renderTerminal(){
+    return `
+    <div class="terminal p-4 rounded-xl">
+
+        <div id="output" class="h-40 overflow-y-auto text-xs"></div>
+
+        <input id="cmd"
+        class="w-full bg-black mt-2 outline-none"
+        placeholder="/help"
+        onkeydown="handleCmd(event)">
+
+    </div>`;
 }
 
 function handleCmd(e){
@@ -652,31 +482,1118 @@ function handleCmd(e){
         const val=e.target.value;
         log("> "+val);
 
-        if(val==="/help") log("/wave /anchor /book /sanctuary");
-
         if(val.startsWith("/wave")){
-            const n=parseInt(val.split(" ")[1]);
-            if(n) state.wave=n;
-            render();
+            state.wave=parseInt(val.split(" ")[1])||state.wave;
         }
 
-        if(val==="/anchor") switchTab('anchor');
-        if(val==="/book") switchTab('book');
-        if(val==="/sanctuary") toggleSanctuary();
+        if(val.startsWith("/color")){
+            setColor(val.split(" ")[1]);
+        }
 
+        render();
         e.target.value="";
     }
 }
 
 function log(msg){
-    const out=document.getElementById('out');
+    const out=document.getElementById('output');
     if(!out) return;
     out.innerHTML+=`<div>${msg}</div>`;
-    out.scrollTop=out.scrollHeight;
 }
 
-render();
+</script>
+<!-- =========================
+PART 2 — VISUAL + COLOR ENGINE
+Bee Well Expansion Layer
+========================= -->
+
+<style>
+
+/* =========================
+🌈 COLOR FREQUENCY SYSTEM (6 STATES)
+========================= */
+
+:root {
+    --yellow:#facc15; /* Static */
+    --red:#ef4444;    /* Heat */
+    --blue:#3b82f6;   /* Gravity */
+    --purple:#a855f7; /* Pulse */
+    --green:#22c55e;  /* Flow */
+    --orange:#f97316; /* Urgency */
+}
+
+/* =========================
+🐝 BEE WELL BACKGROUND BLOBS
+========================= */
+
+.bg-blob {
+    position: fixed;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: .25;
+    animation: floatBlob 20s infinite ease-in-out;
+    z-index:-1;
+}
+
+.bg-blob:nth-child(1){
+    background: var(--purple);
+    top: -100px;
+    left: -100px;
+}
+
+.bg-blob:nth-child(2){
+    background: var(--blue);
+    bottom: -100px;
+    right: -100px;
+    animation-delay: 5s;
+}
+
+.bg-blob:nth-child(3){
+    background: var(--yellow);
+    top: 50%;
+    left: 30%;
+    animation-delay: 10s;
+}
+
+@keyframes floatBlob {
+    0% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(40px,-60px) scale(1.1); }
+    100% { transform: translate(0,0) scale(1); }
+}
+
+/* =========================
+✨ GLASS ENHANCEMENT
+========================= */
+
+.glass {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    border:1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+/* =========================
+🌊 METRIC PULSE
+========================= */
+
+.metric {
+    position:relative;
+    overflow:hidden;
+}
+
+.metric::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.15), transparent 70%);
+    opacity:.2;
+    animation: pulseGlow 4s infinite;
+}
+
+@keyframes pulseGlow {
+    0%,100%{opacity:.1;}
+    50%{opacity:.3;}
+}
+
+/* =========================
+🎯 BUTTON FX
+========================= */
+
+.btn {
+    background: rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+    transition: all .2s ease;
+}
+
+.btn:hover {
+    transform: scale(1.04);
+    background: rgba(255,255,255,0.15);
+}
+
+/* =========================
+🧠 STATE COLOR OVERLAY
+========================= */
+
+body.state-yellow { box-shadow: inset 0 0 200px rgba(250,204,21,.15); }
+body.state-red { box-shadow: inset 0 0 200px rgba(239,68,68,.15); }
+body.state-blue { box-shadow: inset 0 0 200px rgba(59,130,246,.15); }
+body.state-purple { box-shadow: inset 0 0 200px rgba(168,85,247,.15); }
+body.state-green { box-shadow: inset 0 0 200px rgba(34,197,94,.15); }
+body.state-orange { box-shadow: inset 0 0 200px rgba(249,115,22,.15); }
+
+</style>
+
+<script>
+
+/* =========================
+🌈 COLOR STATE ENGINE
+========================= */
+
+state.color = "green";
+
+function setStateColor(c){
+    state.color = c;
+
+    document.body.classList.remove(
+        "state-yellow","state-red","state-blue",
+        "state-purple","state-green","state-orange"
+    );
+
+    document.body.classList.add("state-"+c);
+
+    log("STATE → "+c.toUpperCase());
+}
+
+/* =========================
+🎛 ADD COLOR CONTROLS TO BASE
+========================= */
+
+const oldRender = render;
+
+render = function(){
+    oldRender();
+
+    if(state.tab === 'base'){
+        const v = document.getElementById('view');
+
+        v.innerHTML += `
+        <div class="glass p-4 rounded-xl mt-4">
+            <p class="text-xs opacity-40 mb-2">State Color</p>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+
+                <button onclick="setStateColor('yellow')" class="btn p-2">Yellow</button>
+                <button onclick="setStateColor('red')" class="btn p-2">Red</button>
+                <button onclick="setStateColor('blue')" class="btn p-2">Blue</button>
+                <button onclick="setStateColor('purple')" class="btn p-2">Purple</button>
+                <button onclick="setStateColor('green')" class="btn p-2">Green</button>
+                <button onclick="setStateColor('orange')" class="btn p-2">Orange</button>
+
+            </div>
+        </div>
+        `;
+    }
+};
 
 </script>
-</body>
-</html>
+
+<!-- BACKGROUND BLOBS -->
+<div class="bg-blob"></div>
+<div class="bg-blob"></div>
+<div class="bg-blob"></div>
+<!-- =========================
+PART 3 — FULL BOOK ENGINE
+"The Pilot and the Storm"
+========================= -->
+
+<style>
+
+/* =========================
+📖 BOOK UI
+========================= */
+
+.book-container {
+    display:grid;
+    grid-template-columns: 260px 1fr;
+    gap:20px;
+}
+
+.chapter-list {
+    max-height:70vh;
+    overflow-y:auto;
+}
+
+.chapter-btn {
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:8px;
+    font-size:11px;
+    opacity:.5;
+    transition:.2s;
+}
+
+.chapter-btn:hover {
+    opacity:1;
+}
+
+.chapter-btn.active {
+    opacity:1;
+    color:#818cf8;
+}
+
+.chapter-view {
+    line-height:1.8;
+    font-size:14px;
+    max-height:70vh;
+    overflow-y:auto;
+}
+
+.reader-mode {
+    position:fixed;
+    inset:0;
+    background:#050508;
+    z-index:999;
+    padding:40px;
+    overflow-y:auto;
+}
+
+.reader-mode h2 {
+    font-size:22px;
+    margin-bottom:20px;
+}
+
+.reader-mode p {
+    max-width:700px;
+    margin-bottom:20px;
+    opacity:.8;
+}
+
+</style>
+
+<script>
+
+/* =========================
+📖 FULL BOOK DATA (33 CHAPTERS EXPANDED)
+========================= */
+
+const FULL_BOOK = [
+
+{
+title:"Chapter 1: The Landscape of the Storm",
+content:`The complex mind does not experience challenges in isolation; it lives within a Symptom Soup where neurological and emotional currents overlap.
+
+Restlessness becomes anxiety.
+Anxiety becomes shutdown.
+Shutdown becomes shame.
+
+The mistake is searching for a single cause.
+
+The truth:
+This is an ecosystem.
+
+When you understand the landscape, you stop blaming yourself for the weather — and start navigating the terrain.`
+},
+
+{
+title:"Chapter 2: The Anatomy of Shutdown",
+content:`Shutdown is not failure.
+
+It is evacuation.
+
+When overload exceeds capacity, the brain powers down the Pilot.
+
+Language fades.
+Time disappears.
+Choice collapses.
+
+This is not weakness — it is survival.
+
+The moment you understand this, shame dissolves.
+
+And the system can reboot.`
+},
+
+{
+title:"Chapter 3: The Architect vs The Pilot",
+content:`There are two of you.
+
+The Pilot:
+Fast, emotional, reactive, creative.
+
+The Architect:
+Cold, strategic, system-builder.
+
+Most people try to fix the Pilot.
+
+But the real power is this:
+
+The Architect builds systems
+that protect the Pilot.
+
+You don't need a stronger mind.
+
+You need a better design.`
+},
+
+{
+title:"Chapter 4: Colour Frequencies",
+content:`When overwhelmed, the brain cannot process WHY.
+
+It can only process WHAT.
+
+So we replace analysis with color.
+
+Yellow = Static  
+Red = Heat  
+Blue = Gravity  
+Purple = Pulse  
+Green = Flow  
+Orange = Urgency  
+
+Color becomes language.
+
+Language becomes control.
+
+Control restores movement.`
+},
+
+{
+title:"Chapter 5: The Prime Directive",
+content:`Fix the State.
+Then the Step.
+
+Never the reverse.
+
+If the system is dysregulated,
+action will fail.
+
+Regulate first.
+
+Then move one pebble.
+
+That is how ships move through storms.`
+},
+
+{
+title:"Chapter 6: The 90-Second Rule",
+content:`Every emotional spike is chemical.
+
+It lasts ~90 seconds.
+
+After that:
+You are feeding it with thought.
+
+So we wait.
+
+No reaction.
+No story.
+
+Just observe.
+
+The wave passes.
+
+And you remain.`
+},
+
+{
+title:"Chapter 7: Time Blindness",
+content:`Time is not real inside the storm.
+
+There is only:
+Now or Not Now.
+
+This creates panic and paralysis.
+
+Solution:
+Externalize time.
+
+Timers.
+Anchors.
+Visual clocks.
+
+You do not feel time.
+
+You SEE time.`
+},
+
+{
+title:"Chapter 8: Habit Stacking",
+content:`Willpower is unreliable.
+
+So we automate.
+
+Attach new behaviors
+to existing ones.
+
+Coffee → check system  
+Shower → reset state  
+Sit → open MVS  
+
+You are not trying harder.
+
+You are building rails.`
+},
+
+{
+title:"Chapter 9: Fueling Logic",
+content:`You are not broken.
+
+You are under-fueled.
+
+Hydration.
+Food.
+Sleep.
+
+These are not self-care.
+
+They are system requirements.
+
+No fuel → no cognition.
+
+Simple.`
+},
+
+{
+title:"Chapter 10: Fire Kit",
+content:`In chaos, you cannot think.
+
+So you prepare before.
+
+Cold water.
+Headphones.
+Scriptures.
+Anchors.
+
+No thinking required.
+
+Just grab.
+
+Survive the wave.`
+},
+
+{
+title:"Chapter 11: Anxiety Pulse",
+content:`Anxiety is a simulation.
+
+The future is being rehearsed as danger.
+
+But most of it is noise.
+
+The system must learn:
+
+Signal vs Noise.
+
+Not every thought deserves belief.`
+},
+
+{
+title:"Chapter 12: ADHD Scatter",
+content:`The mind cannot land.
+
+Too many signals.
+
+No priority.
+
+Solution:
+
+Force landing.
+
+One task.
+One motion.
+
+Tiny.
+
+Then momentum builds.`
+},
+
+{
+title:"Chapter 13: Emotional Heat",
+content:`Emotion hits instantly.
+
+Full intensity.
+
+It feels real.
+
+But it is chemical.
+
+Pause.
+
+Do not act inside heat.
+
+Let it cool.
+
+Then decide.`
+},
+
+{
+title:"Chapter 14: Shadow Imprints",
+content:`The past writes code into the present.
+
+Your system scans for danger automatically.
+
+Even when none exists.
+
+You are not overreacting.
+
+You are over-trained.
+
+We retrain through awareness.`
+},
+
+{
+title:"Chapter 15: Depression Gravity",
+content:`Energy collapses inward.
+
+Movement feels impossible.
+
+So we shrink the task.
+
+Stand up.
+
+That is enough.
+
+Gravity breaks in millimeters.`
+},
+
+{
+title:"Chapter 16: Dissociation Fog",
+content:`The world fades.
+
+You disconnect.
+
+This is protection.
+
+Ground through senses.
+
+Touch.
+Cold.
+Pressure.
+
+Return to body → return to control.`
+},
+
+{
+title:"Chapter 17: MVS Protocol",
+content:`Minimum Viable Step.
+
+Not finish.
+
+Just start.
+
+One pebble.
+
+Movement creates chemistry.
+
+Chemistry creates momentum.`
+},
+
+{
+title:"Chapter 18: 10/20 Brakes",
+content:`10 min rumination → change body  
+20 min stuck → change location  
+
+You cannot think your way out.
+
+You must disrupt the loop physically.`
+},
+
+{
+title:"Chapter 19: Memory Shield",
+content:`Your brain is not storage.
+
+It is processing.
+
+Write everything down.
+
+Clear RAM.
+
+Clarity returns.`
+},
+
+{
+title:"Chapter 20: Sanctuary Design",
+content:`Your environment shapes your mind.
+
+Reduce noise.
+
+Reduce clutter.
+
+Create silence.
+
+Your system calms automatically.`
+},
+
+{
+title:"Chapter 21: Social Governor",
+content:`People cost energy.
+
+Boundaries protect the system.
+
+Scripts remove friction.
+
+You don’t explain.
+
+You report state.`
+},
+
+{
+title:"Chapter 22: Sensory Override",
+content:`Logic fails in panic.
+
+Use body instead.
+
+Cold water.
+Pressure.
+Breath.
+
+Reset the system directly.`
+},
+
+{
+title:"Chapter 23: Reporting Visibility",
+content:`You don’t explain feelings.
+
+You report weather.
+
+"I am Purple."
+
+That is enough.
+
+Clarity without exhaustion.`
+},
+
+{
+title:"Chapter 24: Sleep Docking",
+content:`Sleep repairs everything.
+
+But entry is hard.
+
+So we build a ritual.
+
+Docking sequence.
+
+Same steps.
+
+Every night.`
+},
+
+{
+title:"Chapter 25: Medication Ledger",
+content:`Track patterns.
+
+Not guesses.
+
+Data reveals truth.
+
+Truth refines system.`
+},
+
+{
+title:"Chapter 26: Metabolic Reset",
+content:`Move your body.
+
+Even briefly.
+
+Reset chemistry.
+
+Unlock mind.`
+},
+
+{
+title:"Chapter 27: Daily Ledger",
+content:`Record wins.
+
+Tiny ones.
+
+This rewires identity.
+
+You are not failing.
+
+You are adapting.`
+},
+
+{
+title:"Chapter 28: Strategic Filter",
+content:`Drop what doesn't matter.
+
+Focus energy.
+
+Less input → more output.`
+},
+
+{
+title:"Chapter 29: Chase the Fox",
+content:`Find the ONE task.
+
+The high leverage one.
+
+Everything else is noise.
+
+Catch the fox.`
+},
+
+{
+title:"Chapter 30: Bodyguards",
+content:`Your patterns protect you.
+
+They are not enemies.
+
+Acknowledge them.
+
+Then lead anyway.`
+},
+
+{
+title:"Chapter 31: Identity Anchors",
+content:`Feelings lie.
+
+Truth does not.
+
+Anchor yourself to truth.
+
+Not weather.`
+},
+
+{
+title:"Chapter 32: Support Grid",
+content:`You are not alone.
+
+Use people.
+
+That is part of the system.`
+},
+
+{
+title:"Chapter 33: The Architect’s Creed",
+content:`I do not fight my nature.
+
+I design for it.
+
+I cannot control the storm.
+
+But I can navigate it.
+
+One step.
+One breath.
+One move.
+
+I am the Architect.`
+}
+
+];
+
+/* =========================
+📖 BOOK RENDER
+========================= */
+
+let currentChapter = 0;
+
+function renderBook(){
+    const v = document.getElementById('view');
+
+    v.innerHTML = `
+    <div class="book-container fade">
+
+        <div class="glass p-3 chapter-list">
+            ${FULL_BOOK.map((c,i)=>`
+                <button class="chapter-btn ${i===currentChapter?'active':''}" onclick="loadChapter(${i})">
+                    ${c.title}
+                </button>
+            `).join('')}
+        </div>
+
+        <div class="glass p-6 chapter-view">
+            <h2 class="text-lg font-bold mb-4">${FULL_BOOK[currentChapter].title}</h2>
+            <p>${FULL_BOOK[currentChapter].content.replace(/\n/g,'<br><br>')}</p>
+
+            <button onclick="openReader()" class="btn mt-6 px-4 py-2 text-xs">
+                IMMERSIVE MODE
+            </button>
+        </div>
+
+    </div>
+    `;
+}
+
+function loadChapter(i){
+    currentChapter = i;
+    renderBook();
+}
+
+/* =========================
+📖 FULLSCREEN READER
+========================= */
+
+function openReader(){
+    const ch = FULL_BOOK[currentChapter];
+
+    const overlay = document.createElement('div');
+    overlay.className = "reader-mode";
+
+    overlay.innerHTML = `
+        <button onclick="this.parentElement.remove()" class="mb-6 opacity-40">Close</button>
+        <h2>${ch.title}</h2>
+        <p>${ch.content.replace(/\n/g,'<br><br>')}</p>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+/* =========================
+HOOK INTO NAV
+========================= */
+
+const oldSwitch = switchTab;
+
+switchTab = function(tab){
+    oldSwitch(tab);
+
+    if(tab === 'book'){
+        renderBook();
+    }
+};
+
+</script>
+<!-- =========================
+PART 4 — SCRIPTURE + IDENTITY ENGINE
+Truth Override System
+========================= -->
+
+<style>
+
+/* =========================
+✝️ ANCHOR UI
+========================= */
+
+.anchor-card {
+    text-align:center;
+    padding:30px;
+}
+
+.anchor-lie {
+    color:#ef4444;
+    opacity:.8;
+    margin-bottom:20px;
+}
+
+.anchor-truth {
+    color:#818cf8;
+    font-size:18px;
+    margin-top:10px;
+}
+
+.anchor-verse {
+    font-size:11px;
+    opacity:.4;
+    margin-top:10px;
+}
+
+/* GLOW BASED ON STATE */
+.anchor-glow-red { box-shadow: 0 0 40px rgba(239,68,68,.2); }
+.anchor-glow-blue { box-shadow: 0 0 40px rgba(59,130,246,.2); }
+.anchor-glow-purple { box-shadow: 0 0 40px rgba(168,85,247,.2); }
+.anchor-glow-green { box-shadow: 0 0 40px rgba(34,197,94,.2); }
+.anchor-glow-yellow { box-shadow: 0 0 40px rgba(250,204,21,.2); }
+.anchor-glow-orange { box-shadow: 0 0 40px rgba(249,115,22,.2); }
+
+</style>
+
+<script>
+
+/* =========================
+✝️ FULL SCRIPTURE DATABASE
+========================= */
+
+const SCRIPTURE_DB = {
+
+identity: [
+{
+lie:"I am a mistake",
+verse:"Psalm 139:14",
+truth:"I am fearfully and wonderfully made; God does not make mistakes."
+},
+{
+lie:"I am unwanted",
+verse:"Ephesians 1:4",
+truth:"I am chosen before the foundation of the world."
+},
+{
+lie:"I am a burden",
+verse:"Psalm 55:22",
+truth:"I am sustained by God; I can cast my weight on Him."
+},
+{
+lie:"I am broken",
+verse:"2 Corinthians 5:17",
+truth:"I am a new creation; the old has passed away."
+},
+{
+lie:"I am unloved",
+verse:"Romans 8:38-39",
+truth:"Nothing can separate me from the love of God."
+}
+],
+
+safety: [
+{
+verse:"Deuteronomy 31:8",
+truth:"I am never alone. God goes before me."
+},
+{
+verse:"Psalm 34:18",
+truth:"God is closest when I feel most broken."
+},
+{
+verse:"Isaiah 43:1",
+truth:"I am called by name; I belong to God."
+},
+{
+verse:"Psalm 27:10",
+truth:"Even if people leave, God holds me."
+}
+],
+
+peace: [
+{
+verse:"2 Timothy 1:7",
+truth:"I have power, love, and a sound mind."
+},
+{
+verse:"Isaiah 26:3",
+truth:"When my mind stays on truth, I enter peace."
+},
+{
+verse:"Philippians 4:7",
+truth:"God’s peace guards my mind like a soldier."
+},
+{
+verse:"1 Corinthians 14:33",
+truth:"Confusion is not from God; peace is."
+}
+],
+
+strength: [
+{
+verse:"Philippians 4:13",
+truth:"I have strength for this one next step."
+},
+{
+verse:"2 Corinthians 12:9",
+truth:"God’s power shows up in my weakness."
+},
+{
+verse:"Isaiah 40:31",
+truth:"God renews my strength as I walk."
+},
+{
+verse:"Psalm 142:3",
+truth:"Even when I don’t see the path, God does."
+}
+]
+
+};
+
+/* =========================
+🧠 STATE → CATEGORY MAPPING
+========================= */
+
+function getCategoryFromState(){
+    switch(state.color){
+        case "red": return "peace";
+        case "blue": return "strength";
+        case "purple": return "peace";
+        case "yellow": return "focus";
+        case "orange": return "peace";
+        default: return "identity";
+    }
+}
+
+/* =========================
+🔁 ROTATION ENGINE
+========================= */
+
+let anchorIndex2 = 0;
+
+function getCurrentAnchors(){
+    const cat = getCategoryFromState();
+    return SCRIPTURE_DB[cat] || SCRIPTURE_DB.identity;
+}
+
+function nextAnchorAdvanced(){
+    const arr = getCurrentAnchors();
+    anchorIndex2 = (anchorIndex2 + 1) % arr.length;
+    renderAnchors();
+}
+
+/* =========================
+🎨 RENDER
+========================= */
+
+function renderAnchors(){
+
+    const v = document.getElementById('view');
+
+    const arr = getCurrentAnchors();
+    const a = arr[anchorIndex2];
+
+    const glowClass = "anchor-glow-" + state.color;
+
+    v.innerHTML = `
+    <div class="glass anchor-card rounded-2xl ${glowClass} fade max-w-xl mx-auto">
+
+        ${a.lie ? `<p class="anchor-lie">"${a.lie}"</p>` : ""}
+
+        <p class="anchor-truth">${a.truth}</p>
+
+        <p class="anchor-verse">${a.verse}</p>
+
+        <div class="mt-6 flex gap-3 justify-center">
+
+            <button onclick="nextAnchorAdvanced()" class="btn px-4 py-2 text-xs">
+                NEXT TRUTH
+            </button>
+
+            <button onclick="truthOverride()" class="btn px-4 py-2 text-xs">
+                OVERRIDE
+            </button>
+
+        </div>
+
+    </div>
+    `;
+}
+
+/* =========================
+🚨 TRUTH OVERRIDE MODE
+========================= */
+
+function truthOverride(){
+
+    const overlay = document.createElement('div');
+    overlay.style.position="fixed";
+    overlay.style.inset="0";
+    overlay.style.background="#000";
+    overlay.style.zIndex="9999";
+    overlay.style.display="flex";
+    overlay.style.alignItems="center";
+    overlay.style.justifyContent="center";
+    overlay.style.flexDirection="column";
+    overlay.style.textAlign="center";
+    overlay.style.padding="40px";
+
+    const arr = SCRIPTURE_DB.identity;
+
+    overlay.innerHTML = `
+        <h2 style="opacity:.4;margin-bottom:20px;">TRUTH OVERRIDE</h2>
+
+        ${arr.map(a=>`
+            <p style="margin:10px 0; font-size:14px; opacity:.8;">
+                ${a.truth}
+            </p>
+        `).join('')}
+
+        <button onclick="this.parentElement.remove()" style="margin-top:30px; opacity:.3;">
+            EXIT
+        </button>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+/* =========================
+HOOK TAB
+========================= */
+
+const oldSwitch2 = switchTab;
+
+switchTab = function(tab){
+    oldSwitch2(tab);
+
+    if(tab === 'anchor'){
+        renderAnchors();
+    }
+};
+
+</script>
