@@ -1,56 +1,59 @@
-// ===== GLOBAL STATE =====
-const state = {
-  wave: 70,
-  integrity: 50,
-  personality: "architect",
-  mvs: [],
-  journal: [],
-  daily: {
-    fox: ""
-  }
-};
+import { state } from "../core/state.js";
 
-// ===== MODULE REGISTRY =====
-const modules = [];
+function getColor() {
+  const w = state.wave;
 
-// allow modules to register themselves
-export function registerModule(fn) {
-  modules.push(fn);
+  if (w < 25) return "#3b82f6";
+  if (w < 45) return "#6366f1";
+  if (w < 65) return "#22c55e";
+  if (w < 80) return "#eab308";
+  if (w < 90) return "#f97316";
+  return "#ef4444";
 }
 
-// ===== INIT =====
-function initState() {
-  const saved = localStorage.getItem("architect_state");
+function getLabel() {
+  const w = state.wave;
 
-  if (saved) {
-    try {
-      Object.assign(state, JSON.parse(saved));
-    } catch (e) {
-      console.warn("State load failed");
-    }
-  }
-
-  // run all registered modules
-  setInterval(() => {
-    modules.forEach(fn => {
-      try {
-        fn(state);
-      } catch (e) {
-        console.warn("Module error:", e);
-      }
-    });
-
-    localStorage.setItem(
-      "architect_state",
-      JSON.stringify(state)
-    );
-
-  }, 2000);
+  if (w < 25) return "LOW";
+  if (w < 45) return "RECOVER";
+  if (w < 65) return "STABLE";
+  if (w < 80) return "ACTIVE";
+  if (w < 90) return "INTENSE";
+  return "OVERLOAD";
 }
 
-// ===== GLOBAL ACCESS =====
-window.state = state;
-window.initState = initState;
+// ✅ MAIN RENDER
+function renderDashboard() {
+  const color = getColor();
 
-// ===== EXPORTS =====
-export { state, initState };
+  return `
+    <div style="padding:20px; max-width:600px; margin:auto;">
+
+      <div style="
+        background:#111;
+        border-radius:16px;
+        padding:30px;
+        text-align:center;
+      ">
+
+        <h1 style="
+          font-size:40px;
+          color:${color};
+          transition: all 0.4s ease;
+        ">
+          ${getLabel()}
+        </h1>
+
+        <p>System active</p>
+
+      </div>
+
+    </div>
+  `;
+}
+
+// ✅ FORCE GLOBAL (NO IMPORT ISSUES EVER AGAIN)
+window.renderDashboard = renderDashboard;
+
+// optional export (won’t break anything)
+export { renderDashboard };
