@@ -275,7 +275,26 @@ function log(msg){
 }
 
 /* INIT */
-render();
+renderif(state.tab==='base'){
+    v.innerHTML=`
+    <div class="grid grid-cols-2 gap-4 fade">
+
+        <div class="glass metric p-5">
+            <p class="text-xs opacity-40">Resiliency Wave</p>
+            <p class="text-2xl font-mono">${state.wave}%</p>
+        </div>
+
+        <div class="glass metric p-5">
+            <p class="text-xs opacity-40">Integrity</p>
+            <p class="text-2xl font-mono">${state.integrity}%</p>
+        </div>
+
+        <button onclick="toggleSanctuary()" class="btn p-4 col-span-2 rounded-xl text-xs uppercase tracking-widest">
+            ${state.sanctuary?'Exit Sanctuary':'Enter Sanctuary'}
+        </button>
+
+    </div>`;
+}
 
 </script>
 
@@ -318,7 +337,17 @@ render();
 /* =========================
    📖 BOOK ENGINE (33 CHAPTERS)
 ========================= */
-
+if(state.tab==='book'){
+    v.innerHTML=`
+    <div class="space-y-4 fade max-w-2xl mx-auto">
+        ${BOOK.map((c,i)=>`
+            <div class="glass p-5 hover:scale-[1.01] transition">
+                <p class="text-xs opacity-40 mb-2">Chapter ${i+1}</p>
+                <p class="text-sm leading-relaxed">${c}</p>
+            </div>
+        `).join('')}
+    </div>`;
+}
 const BOOK = [
 {title:"1. The Landscape of the Storm", content:`The complex mind lives in a Symptom Soup...`},
 {title:"2. The Anatomy of Shutdown", content:`Shutdown is not failure...`},
@@ -365,7 +394,31 @@ const BOOK = [
 /* =========================
    🧠 SCRIPTURE ENGINE
 ========================= */
+if(state.tab==='anchor'){
+    const a=ANCHORS[anchorIndex];
+    v.innerHTML=`
+    <div class="glass p-8 text-center fade max-w-md mx-auto">
 
+        <p class="text-xs opacity-30 mb-2">THE LIE</p>
+        <p class="text-lg mb-6 text-red-400">${a[0]}</p>
+
+        <p class="text-xs opacity-30">${a[1]}</p>
+        <p class="text-xl text-indigo-400 mt-2">${a[2]}</p>
+
+        <button onclick="nextAnchor()" class="btn mt-6 px-6 py-3 rounded-full text-xs">
+            NEXT TRUTH
+        </button>
+
+    </div>`;
+}if(state.tab==='terminal'){
+    v.innerHTML=`
+    <div class="terminal p-4">
+        <div id="output" class="h-40 overflow-y-auto text-xs mb-2"></div>
+        <input id="cmd" class="w-full bg-black outline-none text-green-400"
+        placeholder="> /help"
+        onkeydown="handleCmd(event)">
+    </div>`;
+}
 const ANCHORS = [
 {
 lie:"I am a mistake",
