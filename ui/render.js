@@ -16,6 +16,7 @@ window.renderApp = function () {
   if (tab === "fox") content = foxView();
   if (tab === "stats") content = statsView();
   if (tab === "terminal") content = terminalView();
+  if (tab === "journal") content = journalView();
 
   document.getElementById("app").innerHTML = renderLayout(content);
 };
@@ -94,7 +95,42 @@ function terminalView() {
   `;
 }
 
+function journalView() {
+  return `
+    <div class="space-y-4">
+
+      <textarea 
+        id="journal-input"
+        class="w-full bg-black border p-2 h-24"
+        placeholder="Dump thoughts..."
+      ></textarea>
+
+      <button onclick="window.saveJournal()" class="bg-white text-black px-3 py-1">
+        Save Entry
+      </button>
+
+      <div class="space-y-2 text-sm max-h-60 overflow-y-auto">
+        ${state.journal?.map(j => `
+          <div class="border border-white/10 p-2">
+            <div class="opacity-40 text-xs">${j.time}</div>
+            <div>${j.text}</div>
+          </div>
+        `).reverse().join("") || ""}
+      </div>
+
+    </div>
+  `;
+}
+
 // ===== ACTIONS =====
+
+window.saveJournal = function () {
+  const val = document.getElementById("journal-input").value;
+  if (!val) return;
+
+  window.addJournal(val);
+  window.renderApp();
+};
 
 window.handleTerminal = function (e) {
   if (e.key !== "Enter") return;
@@ -109,7 +145,6 @@ window.handleTerminal = function (e) {
   if (res) out.innerHTML += `<div>${res}</div>`;
 
   out.scrollTop = out.scrollHeight;
-
   e.target.value = "";
 };
 
