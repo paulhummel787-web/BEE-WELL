@@ -1597,3 +1597,1517 @@ switchTab = function(tab){
 };
 
 </script>
+<!-- =========================
+PART 5 — ADVANCED AUDIT ENGINE
+Guided System Intervention
+========================= -->
+
+<style>
+
+/* =========================
+🧠 AUDIT OVERLAY
+========================= */
+
+.audit-overlay {
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.95);
+    z-index:10000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    padding:40px;
+}
+
+.audit-overlay.active {
+    display:flex;
+    animation: fade .4s ease;
+}
+
+.audit-step {
+    font-size:22px;
+    font-weight:300;
+    max-width:600px;
+    line-height:1.5;
+    margin-bottom:30px;
+}
+
+.audit-meta {
+    font-size:10px;
+    letter-spacing:3px;
+    opacity:.3;
+    margin-bottom:20px;
+}
+
+.audit-btn {
+    padding:14px 30px;
+    border:1px solid rgba(255,255,255,0.2);
+    margin-top:20px;
+    font-size:11px;
+    letter-spacing:2px;
+    transition:.2s;
+}
+
+.audit-btn:hover {
+    background:white;
+    color:black;
+}
+
+/* DOTS */
+
+.audit-dots {
+    display:flex;
+    gap:6px;
+    margin-top:30px;
+}
+
+.audit-dot {
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,.1);
+}
+
+.audit-dot.active {
+    background:#818cf8;
+    box-shadow:0 0 10px #818cf8;
+}
+
+</style>
+
+<script>
+
+/* =========================
+🧠 AUDIT DATA
+========================= */
+
+const AUDITS = {
+
+biological: {
+title:"BIOLOGICAL RESET",
+steps:[
+"Drink water now.",
+"Stand up and stretch.",
+"Splash cold water on face.",
+"Slow your breathing.",
+"You are safe. System stabilizing."
+]
+},
+
+mental: {
+title:"MENTAL RESET",
+steps:[
+"Stop thinking.",
+"Observe the thought.",
+"Do not engage.",
+"Wait 90 seconds.",
+"The wave is passing."
+]
+},
+
+execution: {
+title:"EXECUTION RESET",
+steps:[
+"Choose ONE task.",
+"Make it smaller.",
+"Start for 60 seconds.",
+"Do not finish.",
+"You are back in motion."
+]
+}
+
+};
+
+state.audit = {
+active:false,
+type:null,
+step:0
+};
+
+/* =========================
+🚀 START AUDIT
+========================= */
+
+function startAudit(type){
+    state.audit.active = true;
+    state.audit.type = type;
+    state.audit.step = 0;
+
+    renderAudit();
+}
+
+/* =========================
+🎨 RENDER AUDIT
+========================= */
+
+function renderAudit(){
+
+    let overlay = document.getElementById('audit-overlay');
+
+    if(!overlay){
+        overlay = document.createElement('div');
+        overlay.id = "audit-overlay";
+        overlay.className = "audit-overlay";
+        document.body.appendChild(overlay);
+    }
+
+    const data = AUDITS[state.audit.type];
+    const step = data.steps[state.audit.step];
+
+    const isLast = state.audit.step === data.steps.length - 1;
+
+    overlay.innerHTML = `
+        <div class="audit-meta">
+            ${data.title} • STEP ${state.audit.step+1}/${data.steps.length}
+        </div>
+
+        <div class="audit-step">${step}</div>
+
+        <button class="audit-btn" onclick="${isLast?'endAudit()':'nextAudit()'}">
+            ${isLast?'COMPLETE':'NEXT'}
+        </button>
+
+        <div class="audit-dots">
+            ${data.steps.map((_,i)=>`
+                <div class="audit-dot ${i===state.audit.step?'active':''}"></div>
+            `).join('')}
+        </div>
+    `;
+
+    overlay.classList.add('active');
+}
+
+/* =========================
+➡️ NEXT STEP
+========================= */
+
+function nextAudit(){
+    state.audit.step++;
+    renderAudit();
+}
+
+/* =========================
+✅ END AUDIT
+========================= */
+
+function endAudit(){
+    const overlay = document.getElementById('audit-overlay');
+    overlay.classList.remove('active');
+
+    state.audit.active = false;
+
+    log("AUDIT COMPLETE");
+}
+
+/* =========================
+➕ ADD BUTTONS TO BASE
+========================= */
+
+const oldRender3 = render;
+
+render = function(){
+    oldRender3();
+
+    if(state.tab === 'base'){
+        const v = document.getElementById('view');
+
+        v.innerHTML += `
+        <div class="glass p-4 rounded-xl mt-4">
+
+            <p class="text-xs opacity-40 mb-2">System Audit</p>
+
+            <div class="grid grid-cols-3 gap-2 text-xs">
+
+                <button onclick="startAudit('biological')" class="btn p-2">
+                    Body
+                </button>
+
+                <button onclick="startAudit('mental')" class="btn p-2">
+                    Mind
+                </button>
+
+                <button onclick="startAudit('execution')" class="btn p-2">
+                    Action
+                </button>
+
+            </div>
+
+        </div>
+        `;
+    }
+};
+
+</script>
+<script>
+
+/* =========================
+📖 FULL BOOK ENGINE (EXPANDED 33 CHAPTERS)
+========================= */
+
+const FULL_BOOK = [
+
+{
+title:"Chapter 1 — The Landscape of the Storm",
+content:`The complex mind lives inside what can only be described as a Symptom Soup — a constantly shifting blend of emotional, neurological, and physiological states.
+
+There is no clean separation.
+
+Anxiety bleeds into restlessness.
+Restlessness mutates into avoidance.
+Avoidance hardens into depression.
+Depression dissolves into dissociation.
+
+The mistake most systems make is trying to isolate a single “problem.”
+
+There is no single problem.
+
+There is only weather.
+
+And weather cannot be controlled — only navigated.
+
+The shift happens when you stop asking:
+“What’s wrong with me?”
+
+And start asking:
+“What system am I currently in?”
+
+This is the moment you stop being a victim of the storm…
+
+…and become a navigator of it.`
+},
+
+{
+title:"Chapter 2 — The Anatomy of Shutdown",
+content:`Shutdown is not laziness.
+It is not failure.
+It is not weakness.
+
+It is evacuation.
+
+When the nervous system exceeds capacity, the brain pulls power from higher functions to preserve life.
+
+Language goes offline.
+Decision-making collapses.
+Time disappears.
+
+This is the White Fog.
+
+You are not broken in this state.
+
+You are protected.
+
+Understanding this changes everything.
+
+Because you stop trying to push…
+
+…and start learning how to reboot.`
+},
+
+{
+title:"Chapter 3 — The Architect vs The Pilot",
+content:`There are two versions of you:
+
+The Pilot — reactive, emotional, in-the-moment.
+The Architect — calm, strategic, future-focused.
+
+Most people try to strengthen the Pilot.
+
+This fails.
+
+Because the Pilot disappears in storms.
+
+The Architect does not.
+
+The Architect builds systems that function when the Pilot cannot.
+
+You don’t need more willpower.
+
+You need better architecture.`
+},
+
+{
+title:"Chapter 4 — The Colour Frequencies",
+content:`When overwhelmed, the brain cannot process complexity.
+
+So we remove complexity.
+
+We replace it with color.
+
+Yellow — Static (ADHD scatter)
+Red — Heat (emotional flooding)
+Blue — Gravity (depression)
+Purple — Pulse (anxiety)
+White — Fog (dissociation)
+Green — Flow (regulated state)
+
+You do not analyze.
+
+You identify.
+
+“What color am I?”
+
+That question alone restores control.`
+},
+
+{
+title:"Chapter 5 — The Prime Directive",
+content:`Fix the state.
+
+Then take the step.
+
+Never reverse this order.
+
+You cannot think your way out of a dysregulated nervous system.
+
+You must regulate first.
+
+Then act.
+
+This is the law everything else follows.`
+},
+
+/* ---------- MECHANICS ---------- */
+
+{
+title:"Chapter 6 — The 90 Second Rule",
+content:`Every emotional spike is chemical.
+
+It lasts 90 seconds.
+
+After that, the story continues it.
+
+So the rule is simple:
+
+Do nothing for 90 seconds.
+
+Observe.
+
+Let the wave pass.
+
+Then act.`
+},
+
+{
+title:"Chapter 7 — Time Blindness",
+content:`Time is not linear in a complex mind.
+
+It is Now or Not Now.
+
+So we externalize it.
+
+Timers.
+Anchors.
+Visual clocks.
+
+Time must be seen to be trusted.`
+},
+
+{
+title:"Chapter 8 — Habit Stacking",
+content:`You do not build habits from nothing.
+
+You attach them.
+
+Coffee → check system
+Shower → reset mind
+Wake → anchor intention
+
+This creates automatic flight paths.
+
+No thinking required.`
+},
+
+{
+title:"Chapter 9 — Fueling Logic",
+content:`Your brain is a machine.
+
+Low fuel = low control.
+
+Hydration.
+Food.
+Sleep.
+
+These are not optional.
+
+They are system requirements.`
+},
+
+{
+title:"Chapter 10 — Fire Kit",
+content:`When overwhelmed, you cannot think.
+
+So you prepare tools in advance.
+
+Cold water.
+Headphones.
+Weighted objects.
+
+No decisions.
+
+Just action.`
+},
+
+/* ---------- ARCHETYPES ---------- */
+
+{
+title:"Chapter 11 — Anxiety Pulse",
+content:`Anxiety simulates danger.
+
+It is prediction — not reality.
+
+The goal is not to eliminate it…
+
+…but to stop believing it.`
+},
+
+{
+title:"Chapter 12 — ADHD Scatter",
+content:`The mind cannot land.
+
+So we force landing.
+
+One task.
+One movement.
+One step.
+
+This restores control.`
+},
+
+{
+title:"Chapter 13 — Emotional Heat",
+content:`Emotions hit instantly.
+
+You must delay reaction.
+
+90 seconds.
+
+Always.`
+},
+
+{
+title:"Chapter 14 — CPTSD Shadow",
+content:`The past projects onto the present.
+
+Not everything is danger.
+
+But your system believes it is.
+
+Awareness breaks this loop.`
+},
+
+{
+title:"Chapter 15 — Depression Gravity",
+content:`Everything feels heavy.
+
+So we reduce effort.
+
+Tiny steps.
+
+Movement creates energy.`
+},
+
+{
+title:"Chapter 16 — Dissociation Fog",
+content:`Disconnection is protection.
+
+Return through the body.
+
+Touch.
+Sound.
+Movement.
+
+Not thought.`
+},
+
+/* ---------- TOOLS ---------- */
+
+{
+title:"Chapter 17 — MVS",
+content:`Minimum Viable Step.
+
+Not the whole task.
+
+Just one pebble.
+
+This breaks inertia.`
+},
+
+{
+title:"Chapter 18 — 10/20 Brakes",
+content:`10 minutes stuck thinking → change body.
+
+20 minutes stuck physically → change location.
+
+Interrupt loops physically.
+
+Always.`
+},
+
+{
+title:"Chapter 19 — Memory Shield",
+content:`Your brain is not storage.
+
+Write everything down.
+
+Clear the RAM.
+
+Then act.`
+},
+
+/* ---------- ENVIRONMENT ---------- */
+
+{
+title:"Chapter 20 — Sanctuary Design",
+content:`Less noise = more clarity.
+
+Clean space.
+Soft light.
+Minimal input.
+
+Calm environment = calm mind.`
+},
+
+{
+title:"Chapter 21 — Social Governor",
+content:`Boundaries protect energy.
+
+You do not owe constant access.
+
+Scripts help.
+
+Use them.`
+},
+
+{
+title:"Chapter 22 — Sensory Override",
+content:`Cold water resets the system.
+
+Pressure calms the body.
+
+Breathing restores control.
+
+Use biology.`
+},
+
+{
+title:"Chapter 23 — Reporting Visibility",
+content:`Say the color.
+
+“I’m Red.”
+
+That is enough.
+
+No explanation needed.`
+},
+
+/* ---------- MAINTENANCE ---------- */
+
+{
+title:"Chapter 24 — Sleep Docking",
+content:`Sleep is repair.
+
+Without it, everything fails.
+
+Protect it.`
+},
+
+{
+title:"Chapter 25 — Medication Ledger",
+content:`Track patterns.
+
+Find signals.
+
+Adjust accordingly.`
+},
+
+{
+title:"Chapter 26 — Metabolic Reset",
+content:`Move the body.
+
+Reset the system.
+
+Always works.`
+},
+
+{
+title:"Chapter 27 — Daily Ledger",
+content:`Track wins.
+
+Even small ones.
+
+This rewires identity.`
+},
+
+/* ---------- STRATEGY ---------- */
+
+{
+title:"Chapter 28 — The Filter",
+content:`Drop what doesn’t matter.
+
+Focus only on signal.
+
+Energy is limited.`
+},
+
+{
+title:"Chapter 29 — Chase the Fox",
+content:`One high-impact task.
+
+Not ten small ones.
+
+Find it.
+
+Chase it.`
+},
+
+{
+title:"Chapter 30 — Bodyguards",
+content:`Your resistance is protection.
+
+Acknowledge it.
+
+Then lead anyway.`
+},
+
+{
+title:"Chapter 31 — Identity Anchors",
+content:`Feelings lie.
+
+Truth stays.
+
+Anchor to truth.`
+},
+
+{
+title:"Chapter 32 — Support Grid",
+content:`You are not meant to do this alone.
+
+Build support.
+
+Use it.`
+},
+
+{
+title:"Chapter 33 — The Architect’s Creed",
+content:`I do not fight my nature.
+
+I design for it.
+
+One step.
+
+One breath.
+
+One system.
+
+I am the Architect.`
+}
+
+];
+
+
+/* =========================
+📖 BOOK VIEWER
+========================= */
+
+let chapterIndex = 0;
+
+function openBook() {
+    const view = document.getElementById("view");
+
+    view.innerHTML = `
+    <div class="glass p-6 rounded-xl fade max-w-2xl mx-auto">
+
+        <h2 class="text-lg font-bold mb-4">${FULL_BOOK[chapterIndex].title}</h2>
+
+        <p class="opacity-70 whitespace-pre-line">
+            ${FULL_BOOK[chapterIndex].content}
+        </p>
+
+        <div class="flex justify-between mt-6">
+            <button onclick="prevChapter()" class="px-4 py-2 bg-white/10 rounded">Back</button>
+            <button onclick="nextChapter()" class="px-4 py-2 bg-indigo-500 rounded">Next</button>
+        </div>
+
+    </div>
+    `;
+}
+
+function nextChapter(){
+    chapterIndex = (chapterIndex + 1) % FULL_BOOK.length;
+    openBook();
+}
+
+function prevChapter(){
+    chapterIndex = (chapterIndex - 1 + FULL_BOOK.length) % FULL_BOOK.length;
+    openBook();
+}
+
+</script>
+<script>
+
+/* =========================
+📖 FULL BOOK ENGINE (EXPANDED 33 CHAPTERS)
+========================= */
+
+const FULL_BOOK = [
+
+{
+title:"Chapter 1 — The Landscape of the Storm",
+content:`The complex mind lives inside what can only be described as a Symptom Soup — a constantly shifting blend of emotional, neurological, and physiological states.
+
+There is no clean separation.
+
+Anxiety bleeds into restlessness.
+Restlessness mutates into avoidance.
+Avoidance hardens into depression.
+Depression dissolves into dissociation.
+
+The mistake most systems make is trying to isolate a single “problem.”
+
+There is no single problem.
+
+There is only weather.
+
+And weather cannot be controlled — only navigated.
+
+The shift happens when you stop asking:
+“What’s wrong with me?”
+
+And start asking:
+“What system am I currently in?”
+
+This is the moment you stop being a victim of the storm…
+
+…and become a navigator of it.`
+},
+
+{
+title:"Chapter 2 — The Anatomy of Shutdown",
+content:`Shutdown is not laziness.
+It is not failure.
+It is not weakness.
+
+It is evacuation.
+
+When the nervous system exceeds capacity, the brain pulls power from higher functions to preserve life.
+
+Language goes offline.
+Decision-making collapses.
+Time disappears.
+
+This is the White Fog.
+
+You are not broken in this state.
+
+You are protected.
+
+Understanding this changes everything.
+
+Because you stop trying to push…
+
+…and start learning how to reboot.`
+},
+
+{
+title:"Chapter 3 — The Architect vs The Pilot",
+content:`There are two versions of you:
+
+The Pilot — reactive, emotional, in-the-moment.
+The Architect — calm, strategic, future-focused.
+
+Most people try to strengthen the Pilot.
+
+This fails.
+
+Because the Pilot disappears in storms.
+
+The Architect does not.
+
+The Architect builds systems that function when the Pilot cannot.
+
+You don’t need more willpower.
+
+You need better architecture.`
+},
+
+{
+title:"Chapter 4 — The Colour Frequencies",
+content:`When overwhelmed, the brain cannot process complexity.
+
+So we remove complexity.
+
+We replace it with color.
+
+Yellow — Static (ADHD scatter)
+Red — Heat (emotional flooding)
+Blue — Gravity (depression)
+Purple — Pulse (anxiety)
+White — Fog (dissociation)
+Green — Flow (regulated state)
+
+You do not analyze.
+
+You identify.
+
+“What color am I?”
+
+That question alone restores control.`
+},
+
+{
+title:"Chapter 5 — The Prime Directive",
+content:`Fix the state.
+
+Then take the step.
+
+Never reverse this order.
+
+You cannot think your way out of a dysregulated nervous system.
+
+You must regulate first.
+
+Then act.
+
+This is the law everything else follows.`
+},
+
+/* ---------- MECHANICS ---------- */
+
+{
+title:"Chapter 6 — The 90 Second Rule",
+content:`Every emotional spike is chemical.
+
+It lasts 90 seconds.
+
+After that, the story continues it.
+
+So the rule is simple:
+
+Do nothing for 90 seconds.
+
+Observe.
+
+Let the wave pass.
+
+Then act.`
+},
+
+{
+title:"Chapter 7 — Time Blindness",
+content:`Time is not linear in a complex mind.
+
+It is Now or Not Now.
+
+So we externalize it.
+
+Timers.
+Anchors.
+Visual clocks.
+
+Time must be seen to be trusted.`
+},
+
+{
+title:"Chapter 8 — Habit Stacking",
+content:`You do not build habits from nothing.
+
+You attach them.
+
+Coffee → check system
+Shower → reset mind
+Wake → anchor intention
+
+This creates automatic flight paths.
+
+No thinking required.`
+},
+
+{
+title:"Chapter 9 — Fueling Logic",
+content:`Your brain is a machine.
+
+Low fuel = low control.
+
+Hydration.
+Food.
+Sleep.
+
+These are not optional.
+
+They are system requirements.`
+},
+
+{
+title:"Chapter 10 — Fire Kit",
+content:`When overwhelmed, you cannot think.
+
+So you prepare tools in advance.
+
+Cold water.
+Headphones.
+Weighted objects.
+
+No decisions.
+
+Just action.`
+},
+
+/* ---------- ARCHETYPES ---------- */
+
+{
+title:"Chapter 11 — Anxiety Pulse",
+content:`Anxiety simulates danger.
+
+It is prediction — not reality.
+
+The goal is not to eliminate it…
+
+…but to stop believing it.`
+},
+
+{
+title:"Chapter 12 — ADHD Scatter",
+content:`The mind cannot land.
+
+So we force landing.
+
+One task.
+One movement.
+One step.
+
+This restores control.`
+},
+
+{
+title:"Chapter 13 — Emotional Heat",
+content:`Emotions hit instantly.
+
+You must delay reaction.
+
+90 seconds.
+
+Always.`
+},
+
+{
+title:"Chapter 14 — CPTSD Shadow",
+content:`The past projects onto the present.
+
+Not everything is danger.
+
+But your system believes it is.
+
+Awareness breaks this loop.`
+},
+
+{
+title:"Chapter 15 — Depression Gravity",
+content:`Everything feels heavy.
+
+So we reduce effort.
+
+Tiny steps.
+
+Movement creates energy.`
+},
+
+{
+title:"Chapter 16 — Dissociation Fog",
+content:`Disconnection is protection.
+
+Return through the body.
+
+Touch.
+Sound.
+Movement.
+
+Not thought.`
+},
+
+/* ---------- TOOLS ---------- */
+
+{
+title:"Chapter 17 — MVS",
+content:`Minimum Viable Step.
+
+Not the whole task.
+
+Just one pebble.
+
+This breaks inertia.`
+},
+
+{
+title:"Chapter 18 — 10/20 Brakes",
+content:`10 minutes stuck thinking → change body.
+
+20 minutes stuck physically → change location.
+
+Interrupt loops physically.
+
+Always.`
+},
+
+{
+title:"Chapter 19 — Memory Shield",
+content:`Your brain is not storage.
+
+Write everything down.
+
+Clear the RAM.
+
+Then act.`
+},
+
+/* ---------- ENVIRONMENT ---------- */
+
+{
+title:"Chapter 20 — Sanctuary Design",
+content:`Less noise = more clarity.
+
+Clean space.
+Soft light.
+Minimal input.
+
+Calm environment = calm mind.`
+},
+
+{
+title:"Chapter 21 — Social Governor",
+content:`Boundaries protect energy.
+
+You do not owe constant access.
+
+Scripts help.
+
+Use them.`
+},
+
+{
+title:"Chapter 22 — Sensory Override",
+content:`Cold water resets the system.
+
+Pressure calms the body.
+
+Breathing restores control.
+
+Use biology.`
+},
+
+{
+title:"Chapter 23 — Reporting Visibility",
+content:`Say the color.
+
+“I’m Red.”
+
+That is enough.
+
+No explanation needed.`
+},
+
+/* ---------- MAINTENANCE ---------- */
+
+{
+title:"Chapter 24 — Sleep Docking",
+content:`Sleep is repair.
+
+Without it, everything fails.
+
+Protect it.`
+},
+
+{
+title:"Chapter 25 — Medication Ledger",
+content:`Track patterns.
+
+Find signals.
+
+Adjust accordingly.`
+},
+
+{
+title:"Chapter 26 — Metabolic Reset",
+content:`Move the body.
+
+Reset the system.
+
+Always works.`
+},
+
+{
+title:"Chapter 27 — Daily Ledger",
+content:`Track wins.
+
+Even small ones.
+
+This rewires identity.`
+},
+
+/* ---------- STRATEGY ---------- */
+
+{
+title:"Chapter 28 — The Filter",
+content:`Drop what doesn’t matter.
+
+Focus only on signal.
+
+Energy is limited.`
+},
+
+{
+title:"Chapter 29 — Chase the Fox",
+content:`One high-impact task.
+
+Not ten small ones.
+
+Find it.
+
+Chase it.`
+},
+
+{
+title:"Chapter 30 — Bodyguards",
+content:`Your resistance is protection.
+
+Acknowledge it.
+
+Then lead anyway.`
+},
+
+{
+title:"Chapter 31 — Identity Anchors",
+content:`Feelings lie.
+
+Truth stays.
+
+Anchor to truth.`
+},
+
+{
+title:"Chapter 32 — Support Grid",
+content:`You are not meant to do this alone.
+
+Build support.
+
+Use it.`
+},
+
+{
+title:"Chapter 33 — The Architect’s Creed",
+content:`I do not fight my nature.
+
+I design for it.
+
+One step.
+
+One breath.
+
+One system.
+
+I am the Architect.`
+}
+
+];
+
+
+/* =========================
+📖 BOOK VIEWER
+========================= */
+
+let chapterIndex = 0;
+
+function openBook() {
+    const view = document.getElementById("view");
+
+    view.innerHTML = `
+    <div class="glass p-6 rounded-xl fade max-w-2xl mx-auto">
+
+        <h2 class="text-lg font-bold mb-4">${FULL_BOOK[chapterIndex].title}</h2>
+
+        <p class="opacity-70 whitespace-pre-line">
+            ${FULL_BOOK[chapterIndex].content}
+        </p>
+
+        <div class="flex justify-between mt-6">
+            <button onclick="prevChapter()" class="px-4 py-2 bg-white/10 rounded">Back</button>
+            <button onclick="nextChapter()" class="px-4 py-2 bg-indigo-500 rounded">Next</button>
+        </div>
+
+    </div>
+    `;
+}
+
+function nextChapter(){
+    chapterIndex = (chapterIndex + 1) % FULL_BOOK.length;
+    openBook();
+}
+
+function prevChapter(){
+    chapterIndex = (chapterIndex - 1 + FULL_BOOK.length) % FULL_BOOK.length;
+    openBook();
+}
+
+</script>
+<script>
+
+/* =========================
+🧠 FULL SCRIPTURE + IDENTITY ANCHOR ENGINE
+========================= */
+
+const SCRIPTURE_ENGINE = [
+
+/* ================= IDENTITY ================= */
+
+{
+category:"Identity",
+color:"blue",
+lie:"I am a mistake",
+verse:"Psalm 139:14",
+truth:"I am fearfully and wonderfully made; God does not make mistakes."
+},
+{
+category:"Identity",
+color:"blue",
+lie:"I am unwanted",
+verse:"Ephesians 1:4",
+truth:"I am chosen by God before the world began; I am wanted."
+},
+{
+category:"Identity",
+color:"blue",
+lie:"I am a burden",
+verse:"Psalm 55:22",
+truth:"I am sustained by God; He carries what I cannot."
+},
+{
+category:"Identity",
+color:"blue",
+lie:"I am broken",
+verse:"2 Corinthians 5:17",
+truth:"I am a new creation; the old is gone, the new is here."
+},
+{
+category:"Identity",
+color:"blue",
+lie:"I am unloved",
+verse:"Romans 8:38-39",
+truth:"Nothing can separate me from the love of God."
+},
+
+/* ================= SAFETY ================= */
+
+{
+category:"Safety",
+color:"purple",
+lie:"I am alone",
+verse:"Deuteronomy 31:8",
+truth:"God goes before me; I am never alone."
+},
+{
+category:"Safety",
+color:"purple",
+lie:"I am abandoned",
+verse:"Psalm 27:10",
+truth:"Even if people leave, God holds me close."
+},
+{
+category:"Safety",
+color:"purple",
+lie:"I am too broken to be helped",
+verse:"Psalm 34:18",
+truth:"God is closest when I am most broken."
+},
+{
+category:"Safety",
+color:"purple",
+lie:"I don't belong",
+verse:"Isaiah 43:1",
+truth:"I am called by name; I belong to God."
+},
+
+/* ================= PEACE ================= */
+
+{
+category:"Peace",
+color:"yellow",
+lie:"My mind is out of control",
+verse:"2 Timothy 1:7",
+truth:"I have power, love, and a sound mind."
+},
+{
+category:"Peace",
+color:"yellow",
+lie:"I will always feel this way",
+verse:"Isaiah 26:3",
+truth:"God keeps my mind in perfect peace when I focus on Him."
+},
+{
+category:"Peace",
+color:"yellow",
+lie:"I am overwhelmed",
+verse:"Philippians 4:7",
+truth:"God’s peace guards my heart and mind."
+},
+{
+category:"Peace",
+color:"yellow",
+lie:"Everything is chaos",
+verse:"1 Corinthians 14:33",
+truth:"God is not the author of confusion but of peace."
+},
+
+/* ================= STRENGTH ================= */
+
+{
+category:"Strength",
+color:"red",
+lie:"I can't do this",
+verse:"Philippians 4:13",
+truth:"I can do all things through Christ who strengthens me."
+},
+{
+category:"Strength",
+color:"red",
+lie:"I am too weak",
+verse:"2 Corinthians 12:9",
+truth:"God’s power is made perfect in my weakness."
+},
+{
+category:"Strength",
+color:"red",
+lie:"I have no energy",
+verse:"Isaiah 40:31",
+truth:"God renews my strength; I will not faint."
+},
+{
+category:"Strength",
+color:"red",
+lie:"I don’t know what to do",
+verse:"Psalm 142:3",
+truth:"Even when I don’t see the path, God does."
+}
+
+];
+
+
+/* =========================
+🎯 GET ANCHOR BY COLOR (STATE-BASED)
+========================= */
+
+function getAnchorByColor(color){
+    const filtered = SCRIPTURE_ENGINE.filter(a => a.color === color);
+    return filtered[Math.floor(Math.random() * filtered.length)];
+}
+
+
+/* =========================
+🧠 AUTO DETECT CURRENT STATE → COLOR
+========================= */
+
+function getSystemColor(){
+    if(state.wave < 30) return "blue";     // depression
+    if(state.wave < 50) return "purple";   // anxiety
+    if(state.wave < 70) return "yellow";   // scatter
+    if(state.wave < 85) return "red";      // overload
+    return "green";                        // flow
+}
+
+
+/* =========================
+✨ RENDER ANCHOR PANEL (SMART)
+========================= */
+
+function renderSmartAnchor(){
+
+    const view = document.getElementById("view");
+    const color = getSystemColor();
+    const anchor = getAnchorByColor(color);
+
+    view.innerHTML = `
+    <div class="glass p-8 rounded-2xl text-center fade max-w-xl mx-auto">
+
+        <p class="text-xs uppercase opacity-30 mb-2">System State</p>
+        <p class="text-lg mb-6 capitalize text-${color}-400">${color}</p>
+
+        <p class="text-xs opacity-40 mb-2">The Lie</p>
+        <p class="text-lg text-red-400 mb-6">${anchor.lie}</p>
+
+        <p class="text-xs opacity-40">${anchor.verse}</p>
+        <p class="text-xl text-indigo-400 mt-2">${anchor.truth}</p>
+
+        <button onclick="renderSmartAnchor()" 
+        class="mt-8 px-6 py-3 bg-indigo-500 rounded-full text-xs tracking-widest">
+            NEXT TRUTH
+        </button>
+
+    </div>
+    `;
+}
+
+
+/* =========================
+⚡ FORCE ANCHOR (MANUAL MODE)
+========================= */
+
+function openAnchors(){
+    renderSmartAnchor();
+}
+
+
+/* =========================
+🧠 AUTO-INJECT ANCHOR DURING LOW STATE
+========================= */
+
+function autoInjectAnchor(){
+
+    if(state.wave < 40){
+        console.log("⚠️ LOW STATE DETECTED → INJECTING TRUTH");
+
+        const anchor = getAnchorByColor(getSystemColor());
+
+        log(`ANCHOR: ${anchor.truth}`);
+    }
+}
+
+
+/* =========================
+🕒 RUN BACKGROUND CHECK
+========================= */
+
+setInterval(autoInjectAnchor, 15000); // every 15s
+
+
+/* =========================
+🧪 TERMINAL COMMANDS EXTENSION
+========================= */
+
+const oldHandleCmd = handleCmd;
+
+handleCmd = function(e){
+
+    if(e.key === "Enter"){
+        const val = e.target.value;
+
+        if(val === "/anchor"){
+            openAnchors();
+        }
+
+        if(val === "/truth"){
+            renderSmartAnchor();
+        }
+
+        if(val.startsWith("/state")){
+            const num = parseInt(val.split(" ")[1]);
+            if(num){
+                state.wave = num;
+                renderSmartAnchor();
+            }
+        }
+    }
+
+    oldHandleCmd(e);
+};
+
+</script>
