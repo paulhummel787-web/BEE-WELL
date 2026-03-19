@@ -3,108 +3,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Architect OS</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <style>
-    body {
-      background: #0a0a0a;
-      color: white;
-      font-family: system-ui, sans-serif;
-      margin: 0;
-    }
-
-    #errorBox {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: #220000;
-      color: #ffaaaa;
-      font-family: monospace;
-      padding: 10px;
-      z-index: 9999;
-      white-space: pre-wrap;
-    }
-
-    .glass {
-      background: rgba(255,255,255,0.04);
-      padding: 20px;
-      border-radius: 12px;
-    }
-  </style>
-
 </head>
 
-<body>
+<body style="background:#0a0a0a;color:white;font-family:sans-serif;">
 
-<div id="errorBox">Loading...</div>
-<div id="app"></div>
+<div id="app" style="padding:20px;"></div>
 
-<script type="module">
+<script>
 
-const showError = (e) => {
-  document.getElementById("errorBox").innerText =
-    "ERROR:\n" + (e?.message || e);
-  console.error(e);
+// ===== BASIC STATE =====
+const state = {
+  wave: 70,
+  integrity: 50
 };
 
-try {
+// ===== SIMPLE UI =====
+function render() {
+  document.getElementById("app").innerHTML = `
+    <h1 style="font-size:24px;margin-bottom:20px;">Architect OS</h1>
 
-  // ===== IMPORTS =====
-  const layout = await import("./ui/layout.js");
+    <div style="background:#111;padding:20px;border-radius:10px;">
+      <p>Wave: ${Math.round(state.wave)}</p>
+      <p>Integrity: ${Math.round(state.integrity)}</p>
+    </div>
 
-  const dashboard = await import("./views/dashboard.js");
-  const mvs = await import("./views/mvs.js");
-  const fox = await import("./views/fox.js");
-  const stats = await import("./views/stats.js");
-  const terminal = await import("./views/terminal.js");
-  const journal = await import("./views/journal.js");
-
-  await import("./core/state.js");
-
-  await import("./modules/engine.js");
-  await import("./modules/hud.js");
-  await import("./modules/analytics.js");
-  await import("./modules/aiCoach.js");
-  await import("./modules/predictor.js");
-  await import("./modules/missions.js");
-  await import("./modules/panic.js");
-  await import("./modules/anchor.js");
-
-  // ===== INIT =====
-  window.initState();
-
-  // ===== ROUTER =====
-  window.renderApp = function () {
-    const tab = layout.getTab();
-
-    let view = "";
-
-    if (tab === "dashboard") view = dashboard.renderDashboard();
-    if (tab === "mvs") view = mvs.renderMVS();
-    if (tab === "fox") view = fox.renderFox();
-    if (tab === "stats") view = stats.renderStats();
-    if (tab === "terminal") view = terminal.renderTerminal();
-    if (tab === "journal") view = journal.renderJournal();
-
-    document.getElementById("app").innerHTML =
-      layout.renderLayout(view);
-  };
-
-  window.renderApp();
-
-  setInterval(() => {
-    window.renderApp();
-  }, 1500);
-
-  document.getElementById("errorBox").innerText = "SYSTEM ONLINE";
-
-} catch (e) {
-  showError(e);
+    <button onclick="panic()" style="margin-top:20px;padding:10px 20px;background:red;">
+      PANIC
+    </button>
+  `;
 }
+
+// ===== ENGINE =====
+setInterval(() => {
+  state.wave += (Math.random() - 0.5) * 2;
+  render();
+}, 1000);
+
+// ===== PANIC =====
+function panic() {
+  alert("RESET");
+  state.wave = 90;
+}
+
+// ===== INIT =====
+render();
 
 </script>
 
