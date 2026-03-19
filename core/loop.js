@@ -1,5 +1,9 @@
 import { state, modules } from "./state.js";
 import { render } from "../ui/render.js";
+import { saveState, loadState } from "./storage.js";
+
+// LOAD ON START
+loadState();
 
 function updateWave() {
   state.wave += state.wave > 50 ? -0.4 : 0.2;
@@ -40,6 +44,9 @@ function loop() {
   });
 
   render();
+
+  // AUTO SAVE
+  saveState();
 }
 
 setInterval(loop, 3000);
