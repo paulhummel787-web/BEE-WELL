@@ -4154,3 +4154,464 @@ log("🧩 MVS Engine Online");
 log("🎯 Focus Mode Ready");
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+/* =========================
+📊 SYSTEM METRICS HISTORY
+========================= */
+
+state.metricsHistory = state.metricsHistory || [];
+
+function recordMetrics(){
+    state.metricsHistory.push({
+        time: new Date().toLocaleTimeString(),
+        wave: state.wave,
+        integrity: state.integrity
+    });
+
+    if(state.metricsHistory.length > 30){
+        state.metricsHistory.shift();
+    }
+}
+
+/* record every 10s */
+setInterval(recordMetrics, 10000);
+
+/* =========================
+📈 CHART ENGINE
+========================= */
+
+let chartInstance = null;
+
+function openAnalytics(){
+
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 bg-black z-[9999] p-6";
+
+    overlay.innerHTML = `
+        <h2 class="mb-4">System Analytics</h2>
+        <canvas id="chart"></canvas>
+        <button onclick="this.parentElement.remove()" class="mt-6 text-xs opacity-40">Close</button>
+    `;
+
+    document.body.appendChild(overlay);
+
+    setTimeout(()=>{
+        const ctx = document.getElementById("chart");
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: state.metricsHistory.map(x=>x.time),
+                datasets: [
+                    {
+                        label: 'Wave',
+                        data: state.metricsHistory.map(x=>x.wave)
+                    },
+                    {
+                        label: 'Integrity',
+                        data: state.metricsHistory.map(x=>x.integrity)
+                    }
+                ]
+            }
+        });
+
+    },200);
+}
+
+/* =========================
+📓 JOURNAL ENGINE
+========================= */
+
+state.journal = state.journal || [];
+
+function addJournalEntry(text){
+    if(!text) return;
+
+    state.journal.push({
+        text,
+        time: new Date().toLocaleString()
+    });
+
+    log("📓 Journal saved");
+}
+
+function openJournal(){
+
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 bg-black z-[9999] p-6 overflow-y-auto";
+
+    overlay.innerHTML = `
+        <h2 class="mb-4">Journal</h2>
+
+        <textarea id="journalInput" class="w-full bg-black border p-2 mb-4"
+        placeholder="Dump thoughts..."></textarea>
+
+        <button onclick="saveJournal()" class="bg-indigo-500 px-4 py-2 rounded">
+            Save
+        </button>
+
+        <div class="mt-6 space-y-3">
+            ${state.journal.map(j=>`
+                <div class="glass p-3">
+                    <p class="text-xs opacity-40">${j.time}</p>
+                    <p>${j.text}</p>
+                </div>
+            `).join("")}
+        </div>
+
+        <button onclick="this.parentElement.remove()" class="mt-6 text-xs opacity-40">Close</button>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+function saveJournal(){
+    const val = document.getElementById("journalInput").value;
+    addJournalEntry(val);
+    openJournal();
+}
+
+/* =========================
+🧠 AUTO REFLECTION PROMPTS
+========================= */
+
+const REFLECTIONS = [
+"If you had 10% more courage, what would you do?",
+"What is noise right now?",
+"What is one tiny step?",
+"What are you avoiding?",
+"What actually matters today?"
+];
+
+function suggestReflection(){
+    return REFLECTIONS[Math.floor(Math.random()*REFLECTIONS.length)];
+}
+
+/* =========================
+🎯 DAILY MISSION SYSTEM
+========================= */
+
+state.daily = state.daily || {
+    fox: null,
+    completed:false,
+    date: new Date().toDateString()
+};
+
+function checkNewDay(){
+    const today = new Date().toDateString();
+
+    if(state.daily.date !== today){
+        state.daily = {
+            fox:null,
+            completed:false,
+            date:today
+        };
+
+        log("🌅 New Day Initialized");
+    }
+}
+
+setInterval(checkNewDay, 60000);
+
+/* =========================
+🦊 DAILY FOX UI
+========================= */
+
+function openDaily(){
+
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 bg-black z-[9999] p-6";
+
+    overlay.innerHTML = `
+        <h2 class="mb-4">Daily Mission</h2>
+
+        <p class="text-xs opacity-40 mb-2">Fox</p>
+        <input id="foxInput" class="w-full bg-black border p-2 mb-4"
+        value="${state.daily.fox || ""}" placeholder="Main target">
+
+        <button onclick="saveFox()" class="bg-indigo-500 px-4 py-2 rounded">
+            Lock Fox
+        </button>
+
+        <button onclick="completeFox()" class="ml-2 bg-green-600 px-4 py-2 rounded">
+            Complete
+        </button>
+
+        <p class="mt-6 opacity-40 text-xs">Reflection</p>
+        <p>${suggestReflection()}</p>
+
+        <button onclick="this.parentElement.remove()" class="mt-6 text-xs opacity-40">Close</button>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+function saveFox(){
+    const val = document.getElementById("foxInput").value;
+    state.daily.fox = val;
+    setFox(val);
+}
+
+function completeFox(){
+    state.daily.completed = true;
+    state.integrity += 10;
+    state.score += 10;
+    log("🦊 Daily Fox Complete");
+}
+
+/* =========================
+🧭 NAV EXPANSION (ANALYTICS + JOURNAL + DAILY)
+========================= */
+
+if(nav){
+    const a = document.createElement("button");
+    a.innerText = "Data";
+    a.className = "nav-btn";
+    a.onclick = openAnalytics;
+
+    const j = document.createElement("button");
+    j.innerText = "Journal";
+    j.className = "nav-btn";
+    j.onclick = openJournal;
+
+    const d = document.createElement("button");
+    d.innerText = "Daily";
+    d.className = "nav-btn";
+    d.onclick = openDaily;
+
+    nav.appendChild(a);
+    nav.appendChild(j);
+    nav.appendChild(d);
+}
+
+/* =========================
+🤖 AUTO JOURNAL PROMPT NUDGE
+========================= */
+
+setInterval(()=>{
+    if(state.mode === "overloaded"){
+        log("🧠 Try journaling: " + suggestReflection());
+    }
+},20000);
+
+/* =========================
+🚀 INIT
+========================= */
+
+log("📊 Analytics Ready");
+log("📓 Journal Online");
+log("🦊 Daily System Active");
+
+</script>
+<script>
+
+/* =========================
+🧠 PERSONALITY ENGINE (SYSTEM VOICE)
+========================= */
+
+state.personality = state.personality || "architect";
+
+const PERSONALITIES = {
+    architect: [
+        "Stabilize the system. Then execute.",
+        "You are not behind. You are recalibrating.",
+        "One clean move is enough."
+    ],
+    coach: [
+        "Let’s go — small step right now.",
+        "Momentum beats perfection.",
+        "You’ve done harder things."
+    ],
+    calm: [
+        "Slow down. You’re safe.",
+        "Breathe. Nothing urgent.",
+        "Stay here. That’s enough."
+    ]
+};
+
+function speakSystem(){
+    const lines = PERSONALITIES[state.personality];
+    const line = lines[Math.floor(Math.random()*lines.length)];
+    log("🧠 " + line);
+}
+
+/* =========================
+🎮 LEVEL SYSTEM (GAMIFICATION)
+========================= */
+
+state.level = state.level || 1;
+state.xp = state.xp || 0;
+
+function gainXP(amount){
+    state.xp += amount;
+
+    if(state.xp > state.level * 50){
+        state.level++;
+        state.xp = 0;
+        log("⬆️ Level Up: " + state.level);
+    }
+}
+
+/* hook into score */
+const oldUpdateScore = updateScore;
+updateScore = function(type){
+    oldUpdateScore(type);
+    gainXP(5);
+};
+
+/* =========================
+🏆 ACHIEVEMENTS
+========================= */
+
+state.achievements = state.achievements || [];
+
+function unlock(name){
+    if(!state.achievements.includes(name)){
+        state.achievements.push(name);
+        log("🏆 " + name);
+    }
+}
+
+/* triggers */
+setInterval(()=>{
+    if(state.score > 50) unlock("Momentum Started");
+    if(state.score > 200) unlock("System Builder");
+},10000);
+
+/* =========================
+💾 EXPORT / IMPORT SYSTEM
+========================= */
+
+function exportData(){
+    const data = JSON.stringify(state);
+    const blob = new Blob([data], {type:"application/json"});
+    const a = document.createElement("a");
+
+    a.href = URL.createObjectURL(blob);
+    a.download = "bee_well_backup.json";
+    a.click();
+
+    log("💾 Data exported");
+}
+
+function importData(){
+    const input = document.createElement("input");
+    input.type = "file";
+
+    input.onchange = e=>{
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = ()=>{
+            const data = JSON.parse(reader.result);
+            Object.assign(state, data);
+            log("📂 Data loaded");
+        };
+
+        reader.readAsText(file);
+    };
+
+    input.click();
+}
+
+/* =========================
+📱 PWA INSTALL PROMPT
+========================= */
+
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e)=>{
+    e.preventDefault();
+    deferredPrompt = e;
+
+    log("📱 App install available");
+});
+
+function installApp(){
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(()=>{
+            deferredPrompt = null;
+        });
+    } else {
+        alert("Install via browser menu");
+    }
+}
+
+/* =========================
+🧬 SYSTEM IDENTITY PANEL
+========================= */
+
+function openIdentity(){
+
+    const overlay = document.createElement("div");
+    overlay.className = "fixed inset-0 bg-black z-[9999] p-6";
+
+    overlay.innerHTML = `
+        <h2 class="mb-4">System Identity</h2>
+
+        <p>Level: ${state.level}</p>
+        <p>XP: ${state.xp}</p>
+
+        <p class="mt-4 text-xs opacity-40">Personality</p>
+        <select onchange="setPersonality(this.value)" class="bg-black border p-2">
+            <option value="architect">Architect</option>
+            <option value="coach">Coach</option>
+            <option value="calm">Calm</option>
+        </select>
+
+        <p class="mt-4 text-xs opacity-40">Achievements</p>
+        <div>${state.achievements.join("<br>")}</div>
+
+        <div class="mt-6 space-x-2">
+            <button onclick="exportData()" class="bg-indigo-500 px-3 py-2 rounded">Export</button>
+            <button onclick="importData()" class="bg-green-600 px-3 py-2 rounded">Import</button>
+            <button onclick="installApp()" class="bg-purple-600 px-3 py-2 rounded">Install</button>
+        </div>
+
+        <button onclick="this.parentElement.remove()" class="mt-6 text-xs opacity-40">Close</button>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+function setPersonality(p){
+    state.personality = p;
+    log("🧠 Personality: " + p);
+}
+
+/* =========================
+🔁 AUTO SYSTEM VOICE
+========================= */
+
+setInterval(()=>{
+    speakSystem();
+},45000);
+
+/* =========================
+🧭 FINAL NAV ADDITIONS
+========================= */
+
+if(nav){
+
+    const id = document.createElement("button");
+    id.innerText = "Identity";
+    id.className = "nav-btn";
+    id.onclick = openIdentity;
+
+    nav.appendChild(id);
+}
+
+/* =========================
+🚀 FINAL INIT
+========================= */
+
+log("🧠 Personality Engine Active");
+log("🎮 Level System Online");
+log("💾 Backup System Ready");
+log("📱 Install Ready");
+
+</script>
