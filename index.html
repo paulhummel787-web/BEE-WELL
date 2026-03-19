@@ -3,33 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Pilot and the Storm — Architect Interface</title>
+<title>The Pilot and the Storm</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
 body{
 background:#080808;
 color:#f5f5f5;
 font-family:Inter,sans-serif;
-transition:all .5s;
 overflow-x:hidden;
+transition:all .6s ease;
 }
 
-/* BLOBS */
+/* BLOBS (your original vibe, improved) */
 .blob{
 position:fixed;
-width:600px;height:600px;
 border-radius:50%;
 filter:blur(140px);
 z-index:-1;
-animation:pulse 12s infinite;
+animation:pulse 12s infinite ease-in-out;
 }
+
 @keyframes pulse{
-0%,100%{opacity:.25}
-50%{opacity:.6}
+0%,100%{opacity:.25;transform:scale(1)}
+50%{opacity:.6;transform:scale(1.1)}
 }
 
 /* GLASS */
@@ -37,35 +35,46 @@ animation:pulse 12s infinite;
 background:rgba(255,255,255,.04);
 backdrop-filter:blur(20px);
 border:1px solid rgba(255,255,255,.08);
+transition:all .3s;
 }
 
-/* SANCTUARY MODE */
-body.sanctuary{
-font-family:serif;
-filter:sepia(.25) contrast(.9) saturate(.9);
+/* HOVER LIFT */
+.glass:hover{
+transform:translateY(-4px);
+background:rgba(255,255,255,.06);
 }
 
 /* FADE */
-.fade{animation:fade .4s ease}
-@keyframes fade{from{opacity:0}to{opacity:1}}
+.fade{animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* SANCTUARY */
+body.sanctuary{
+font-family:serif;
+filter:sepia(.3) contrast(.9) saturate(.85);
+}
+
+/* BUTTON GLOW */
+.glow{
+box-shadow:0 0 20px rgba(245,158,11,.3);
+}
 </style>
 </head>
 
 <body>
 
-<div class="blob bg-amber-500/10 -top-48 -left-48"></div>
-<div class="blob bg-blue-500/10 -bottom-48 -right-48"></div>
+<!-- BLOBS -->
+<div class="blob w-[500px] h-[500px] bg-amber-500/10 -top-40 -left-40"></div>
+<div class="blob w-[600px] h-[600px] bg-blue-500/10 -bottom-40 -right-40"></div>
 
 <div class="max-w-xl mx-auto p-6 pb-28">
 
 <header class="flex justify-between mb-6">
-<div>
-<div id="clock" class="font-mono text-xl"></div>
-</div>
+<div id="clock" class="font-mono text-lg opacity-70"></div>
 
 <div class="flex gap-2">
-<button onclick="Engine.panic()" class="px-3 py-1 bg-red-500/20 text-red-400 rounded">PANIC</button>
-<button onclick="Engine.toggleSanctuary()" class="px-3 py-1 glass rounded">☯</button>
+<button onclick="Engine.panic()" class="px-3 py-1 text-xs bg-red-500/20 text-red-400 rounded-full">PANIC</button>
+<button onclick="Engine.toggleSanctuary()" class="px-3 py-1 glass rounded-full text-xs">☯</button>
 </div>
 </header>
 
@@ -73,17 +82,18 @@ filter:sepia(.25) contrast(.9) saturate(.9);
 
 </div>
 
+<!-- NAV -->
 <nav class="fixed bottom-0 left-0 right-0 glass p-4 flex justify-around">
 <button onclick="Engine.route('base')">Base</button>
 <button onclick="Engine.route('exec')">Exec</button>
-<button onclick="Engine.route('gov')">Gov</button>
-<button onclick="Engine.route('logs')">Logs</button>
 <button onclick="Engine.route('doctrine')">Doctrine</button>
+<button onclick="Engine.route('logs')">Logs</button>
 </nav>
+
 <script>
 
 /* =========================
-   CORE STATE
+   ENGINE
 ========================= */
 
 const Engine = {
@@ -93,16 +103,13 @@ tab:'base',
 wave:70,
 logs:[],
 sanctuary:false,
-anchor:null,
 chapter:1
 },
 
 init(){
-this.load()
 this.tick()
 this.render()
 setInterval(()=>this.tick(),1000)
-setInterval(()=>this.save(),30000)
 },
 
 tick(){
@@ -110,110 +117,35 @@ document.getElementById('clock').innerText =
 new Date().toLocaleTimeString()
 },
 
-route(tab){
-this.state.tab = tab
+route(t){
+this.state.tab=t
 this.render()
 },
 
 render(){
-const v = document.getElementById('view')
+const v=document.getElementById('view')
 
 if(this.state.sanctuary){
-v.innerHTML = Sanctuary.render()
+v.innerHTML=Sanctuary.render()
 return
 }
 
-v.innerHTML = Modules[this.state.tab]()
-Anchor.render()
+v.innerHTML=Modules[this.state.tab]()
 },
 
 log(msg){
 this.state.logs.unshift(msg)
 },
 
+panic(){
+this.log("PANIC")
+Anchor.card("You are not alone. God is with you.")
+},
+
 toggleSanctuary(){
-this.state.sanctuary = !this.state.sanctuary
+this.state.sanctuary=!this.state.sanctuary
 document.body.classList.toggle('sanctuary')
 this.render()
-},
-
-save(){
-localStorage.setItem("pilot_system", JSON.stringify(this.state))
-},
-
-load(){
-const d = localStorage.getItem("pilot_system")
-if(d) this.state = JSON.parse(d)
-}
-
-}
-
-/* =========================
-   ANCHOR SYSTEM (UI BASED)
-========================= */
-
-const Anchor = {
-
-data:{
-
-identity:[
-["Psalm 139:14","I am fearfully and wonderfully made."],
-["Ephesians 1:4","I am chosen before the foundation."]
-],
-
-safety:[
-["Deuteronomy 31:8","I am never alone."],
-["Psalm 34:18","God is close to me."]
-],
-
-peace:[
-["Philippians 4:7","Peace is guarding my mind."],
-["Isaiah 26:3","My mind is held in perfect peace."]
-],
-
-strength:[
-["Philippians 4:13","I have strength for this step."],
-["Isaiah 40:31","My strength is being renewed."]
-]
-
-},
-
-trigger(type){
-const list = this.data[type]
-const pick = list[Math.floor(Math.random()*list.length)]
-
-Engine.state.anchor = {
-text:pick[1],
-ref:pick[0]
-}
-
-Engine.render()
-},
-
-render(){
-if(!Engine.state.anchor) return
-
-const existing = document.getElementById("anchor-card")
-if(existing) existing.remove()
-
-const card = document.createElement("div")
-card.id = "anchor-card"
-
-card.className = `
-fixed bottom-24 left-1/2 -translate-x-1/2
-max-w-sm w-[90%]
-glass p-5 rounded-2xl
-text-center fade
-`
-
-card.innerHTML = `
-<p class="text-sm italic mb-2">"${Engine.state.anchor.text}"</p>
-<p class="text-[10px] opacity-50">${Engine.state.anchor.ref}</p>
-`
-
-document.body.appendChild(card)
-
-setTimeout(()=>card.remove(),6000)
 }
 
 }
@@ -228,17 +160,19 @@ base(){
 return `
 <div class="space-y-6 fade">
 
-<div class="glass p-5 rounded-2xl">
-<p class="text-xs opacity-50 mb-2">Resiliency</p>
-<p class="text-xl font-mono mb-3">${Engine.state.wave}%</p>
+<div class="glass p-5 rounded-2xl glow">
+<p class="text-xs opacity-40 mb-1">Resiliency Wave</p>
+<p class="text-2xl font-mono mb-3">${Engine.state.wave}%</p>
+
 <input type="range" min="0" max="100" value="${Engine.state.wave}"
-oninput="Engine.state.wave=this.value;Engine.render();State.check()">
+oninput="Engine.state.wave=this.value;State.react()"
+class="w-full">
 </div>
 
-<button onclick="Stillness.activate()"
-class="w-full py-4 rounded-2xl border text-sm opacity-70">
-Be Still
-</button>
+<div class="grid grid-cols-2 gap-3">
+<button onclick="Stillness.activate()" class="glass p-4 rounded-xl text-sm">Be Still</button>
+<button onclick="Anchor.strength()" class="glass p-4 rounded-xl text-sm">Strength</button>
+</div>
 
 </div>`
 },
@@ -247,303 +181,161 @@ exec(){
 return `
 <div class="space-y-4 fade text-center">
 
-<button onclick="Anchor.trigger('strength')" class="text-sm">
-I need strength
-</button>
+<div class="glass p-4 rounded-xl">
+<p class="text-sm mb-2">What do you need?</p>
 
-<button onclick="Anchor.trigger('peace')" class="text-sm">
-I need peace
-</button>
+<div class="flex justify-center gap-3">
+<button onclick="Anchor.strength()" class="text-xs">Strength</button>
+<button onclick="Anchor.peace()" class="text-xs">Peace</button>
+</div>
+</div>
+
+</div>`
+},
+
+doctrine(){
+return `
+<div class="space-y-3 fade">
+
+${Doctrine.chapters.map(c=>`
+<div onclick="UI.read(${c.id})"
+class="glass p-3 rounded-xl cursor-pointer">
+${c.id}. ${c.title}
+</div>`).join('')}
 
 </div>`
 },
 
 logs(){
 return `
-<div class="glass p-4 text-xs space-y-2 fade">
+<div class="glass p-4 text-xs fade space-y-1">
 ${Engine.state.logs.map(l=>`<div>${l}</div>`).join('')}
 </div>`
-},
-
-gov(){
-return `<div class="glass p-4 fade">Governance coming...</div>`
 }
 
 }
 
 /* =========================
-   SANCTUARY
+   DOCTRINE
 ========================= */
 
-const Sanctuary = {
+const Doctrine={
+chapters:[
+{ id:1,title:"The Storm Is Real",body:"The storm is real, but it is not your end."},
+{ id:2,title:"You Are Not the Storm",body:"You are the observer, not the chaos."},
+{ id:3,title:"Noise Is Not Truth",body:"Loud does not mean true."},
+{ id:4,title:"The Body Remembers",body:"Your system holds memory."},
+{ id:5,title:"Fragmentation",body:"You are not lost."},
+{ id:6,title:"The Lie",body:"You are not a mistake."},
+{ id:7,title:"Heat",body:"Intensity distorts reality."},
+{ id:8,title:"Collapse",body:"Stabilize."},
+{ id:9,title:"Control",body:"Control is not safety."},
+{ id:10,title:"Abandonment",body:"You are not alone."},
 
-render(){
-const line = Doctrine.random()
-return `
-<div class="fade text-center space-y-10 pt-20">
+{ id:11,title:"Pilot",body:"There is awareness in you."},
+{ id:12,title:"Identity",body:"You are given identity."},
+{ id:13,title:"Made",body:"You are intentional."},
+{ id:14,title:"Carried",body:"You are held."},
+{ id:15,title:"Step",body:"One step is enough."},
 
-<p class="italic text-lg opacity-80">${line}</p>
+{ id:16,title:"Strength",body:"Strength is given."},
+{ id:17,title:"Weakness",body:"Power enters here."},
+{ id:18,title:"Peace",body:"Peace guards your mind."},
 
-<button onclick="Anchor.trigger('peace')" class="text-xs opacity-40">
-Receive Peace
-</button>
+{ id:19,title:"Stillness",body:"Stillness is strength."},
+{ id:20,title:"Clarity",body:"Truth comes quietly."},
+{ id:21,title:"Restart",body:"You can begin again."},
+{ id:22,title:"Rebuild",body:"Nothing is wasted."},
+{ id:23,title:"Stable",body:"Stability grows slowly."},
 
-</div>`
-}
-
+{ id:24,title:"Trust",body:"Growth is unseen."},
+{ id:25,title:"Not Alone",body:"You never were alone."},
+{ id:26,title:"Victory",body:"The storm does not win."}
+]
 }
 
 /* =========================
-   STILLNESS MODE
+   UI READER
 ========================= */
 
-const Stillness = {
+const UI={
+read(id){
+const c=Doctrine.chapters.find(x=>x.id===id)
 
-activate(){
-const overlay = document.createElement("div")
+const o=document.createElement("div")
+o.className="fixed inset-0 bg-black/90 p-6 z-50 fade"
 
-overlay.className = `
-fixed inset-0 bg-black flex items-center justify-center
-z-50 fade text-center p-6
+o.innerHTML=`
+<button onclick="this.parentElement.remove()" class="text-xs opacity-40">Back</button>
+<h1 class="text-xl mt-4">${c.title}</h1>
+<p class="mt-4 opacity-80">${c.body}</p>
 `
 
-overlay.innerHTML = `
-<div>
-<p class="italic text-lg mb-6">"Be still, and know that I am God."</p>
-<button onclick="this.parentElement.parentElement.remove()"
-class="text-xs opacity-40">Return</button>
+document.body.appendChild(o)
+}
+}
+
+/* =========================
+   ANCHORS (UPGRADED UI)
+========================= */
+
+const Anchor={
+
+card(text){
+const c=document.createElement("div")
+c.className="fixed bottom-24 left-1/2 -translate-x-1/2 glass p-4 rounded-xl fade"
+c.innerText=text
+document.body.appendChild(c)
+setTimeout(()=>c.remove(),5000)
+},
+
+strength(){
+this.card("I can do all things through Christ.")
+},
+
+peace(){
+this.card("The peace of God guards my mind.")
+}
+
+}
+
+/* =========================
+   STILLNESS
+========================= */
+
+const Stillness={
+activate(){
+const o=document.createElement("div")
+o.className="fixed inset-0 bg-black flex items-center justify-center z-50 fade"
+
+o.innerHTML=`
+<div class="text-center">
+<p class="text-lg italic mb-4">"Be still, and know that I am God."</p>
+<button onclick="this.parentElement.parentElement.remove()" class="text-xs opacity-40">Return</button>
 </div>
 `
 
-document.body.appendChild(overlay)
+document.body.appendChild(o)
 }
-
 }
 
 /* =========================
-   STATE INTELLIGENCE
+   STATE REACTION
 ========================= */
 
-const State = {
-
-check(){
+const State={
+react(){
 if(Engine.state.wave < 30){
-Anchor.trigger('strength')
+Anchor.strength()
 }
 if(Engine.state.wave < 15){
-Anchor.trigger('identity')
+Anchor.card("You are held. You are not alone.")
 }
 }
-
 }
 
-<script>
-
-/* =========================
-   ENGINE PATCH (ADD THIS)
-========================= */
-
-Engine.openChapter = function(id){
-Engine.state.chapter = id
-UI.openReader()
-}
-
-Engine.getDailyChapter = function(){
-const day = new Date().getDate()
-return (day % 33) + 1
-}
-
-/* =========================
-   DOCTRINE (FULL)
-========================= */
-
-const Doctrine = {
-
-chapters: [
-{ id:1,title:"The Storm Is Real",body:"The storm is not imagined. It is felt deeply, but it is not your end."},
-{ id:2,title:"You Are Not the Storm",body:"You are not your thoughts. You are the one observing them."},
-{ id:3,title:"Noise Is Not Truth",body:"Loud thoughts are not authoritative thoughts."},
-{ id:4,title:"The Body Remembers",body:"Your system carries memory. That does not mean you are broken."},
-{ id:5,title:"Fragmentation",body:"You are not lost. You are unintegrated."},
-{ id:6,title:"The Lie",body:"You are not a mistake. That voice is not truth."},
-{ id:7,title:"Emotional Heat",body:"Intensity distorts reality."},
-{ id:8,title:"Collapse",body:"When direction disappears, stabilize."},
-{ id:9,title:"Control",body:"Control is not safety."},
-{ id:10,title:"Abandonment",body:"You are not alone inside pain."},
-{ id:11,title:"Breaking Point",body:"This is exposure, not the end."},
-
-{ id:12,title:"There Is a Pilot",body:"There is still awareness within you."},
-{ id:13,title:"Identity",body:"You are given identity, not earning it."},
-{ id:14,title:"Fearfully Made",body:"You were designed intentionally."},
-{ id:15,title:"Not Alone",body:"God is with you in this moment."},
-{ id:16,title:"Carried",body:"You are being held together."},
-{ id:17,title:"Externalize",body:"You don’t have to carry it alone."},
-{ id:18,title:"One Step",body:"Only the next step matters."},
-{ id:19,title:"Strength",body:"Strength is supplied."},
-{ id:20,title:"Weakness",body:"Weakness is where power enters."},
-{ id:21,title:"Claimed",body:"You belong."},
-{ id:22,title:"Guarded Mind",body:"Peace protects your mind."},
-
-{ id:23,title:"Peace Position",body:"Peace is where you stand."},
-{ id:24,title:"No Rush",body:"Healing is not rushed."},
-{ id:25,title:"Stillness",body:"Stillness is strength."},
-{ id:26,title:"70% Life",body:"You were not built for constant strain."},
-{ id:27,title:"Quiet Clarity",body:"Truth arrives quietly."},
-{ id:28,title:"Begin Again",body:"You can always restart."},
-{ id:29,title:"Rebuild",body:"Nothing is wasted."},
-{ id:30,title:"Stability",body:"Stability is built slowly."},
-{ id:31,title:"Trust",body:"Growth is happening unseen."},
-{ id:32,title:"Not Alone",body:"You never were alone."},
-{ id:33,title:"The Storm Does Not Win",body:"This is not your ending."}
-],
-
-get(id){
-return this.chapters.find(c=>c.id===id)
-},
-
-daily(){
-return this.get(Engine.getDailyChapter())
-}
-
-}
-
-/* =========================
-   UI LAYER
-========================= */
-
-const UI = {
-
-openReader(){
-const c = Doctrine.get(Engine.state.chapter)
-
-const overlay = document.createElement("div")
-overlay.className = `
-fixed inset-0 bg-black/90 z-50 flex flex-col
-p-6 fade
-`
-
-overlay.innerHTML = `
-<div class="max-w-xl mx-auto w-full">
-
-<button onclick="this.parentElement.parentElement.remove()"
-class="mb-6 text-xs opacity-40">← Back</button>
-
-<h1 class="text-xl mb-4">${c.title}</h1>
-
-<p class="text-sm leading-relaxed opacity-80 mb-6">
-${c.body}
-</p>
-
-<button onclick="Anchor.matchChapter(${c.id})"
-class="text-xs opacity-40">Receive Anchor</button>
-
-</div>
-`
-
-document.body.appendChild(overlay)
-}
-
-}
-
-/* =========================
-   ANCHOR MATCHING
-========================= */
-
-Anchor.matchChapter = function(id){
-
-if(id <= 11) this.trigger("safety")
-else if(id <= 22) this.trigger("identity")
-else this.trigger("peace")
-
-}
-
-/* =========================
-   MODULE UPDATE
-========================= */
-
-Modules.doctrine = function(){
-
-const daily = Doctrine.daily()
-
-return `
-<div class="space-y-6 fade">
-
-<div class="glass p-5 rounded-2xl">
-<p class="text-xs opacity-40 mb-2">Daily Chapter</p>
-<h2 class="text-lg">${daily.title}</h2>
-<button onclick="Engine.openChapter(${daily.id})"
-class="text-xs opacity-50 mt-2">Read</button>
-</div>
-
-<div class="space-y-2">
-${Doctrine.chapters.map(c=>`
-<div onclick="Engine.openChapter(${c.id})"
-class="glass p-3 rounded-xl text-sm cursor-pointer hover:bg-white/5 transition">
-${c.id}. ${c.title}
-</div>
-`).join("")}
-</div>
-
-</div>
-`
-
-}
-
-/* =========================
-   STATE → CHAPTER LOGIC
-========================= */
-
-State.check = function(){
-
-const w = Engine.state.wave
-
-if(w < 15){
-Engine.state.chapter = 13
-Anchor.trigger("identity")
-}
-
-else if(w < 30){
-Engine.state.chapter = 18
-Anchor.trigger("strength")
-}
-
-else if(w > 70){
-Engine.state.chapter = 25
-}
-
-}
-
-/* =========================
-   SANCTUARY UPGRADE
-========================= */
-
-Sanctuary.render = function(){
-
-const c = Doctrine.daily()
-
-return `
-<div class="fade text-center pt-20 space-y-10">
-
-<p class="italic text-lg opacity-80">
-${c.body}
-</p>
-
-<button onclick="Engine.openChapter(${c.id})"
-class="text-xs opacity-40">
-Read Chapter
-</button>
-
-<button onclick="Anchor.trigger('peace')"
-class="text-xs opacity-30">
-Receive Peace
-</button>
-
-</div>
-`
-
-}
-
-</script>
+/* INIT */
+Engine.init()
 
 </script>
 
