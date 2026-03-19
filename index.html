@@ -6,115 +6,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Architect OS</title>
 
-  <!-- PWA -->
-
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0a0a0a">
-
-  <!-- Tailwind -->
-
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Chart.js -->
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    body {
-      background: #0a0a0a;
-      color: white;
-      font-family: system-ui, sans-serif;
-      overflow: hidden;
-    }
-
-    .glass {
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .fade-in {
-      animation: fadeIn 0.4s ease forwards;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform:translateY(10px);}
-      to {opacity:1; transform:translateY(0);}
-    }
-  </style>
 
 </head>
 
-<body>
+<body style="background:black; color:white; padding:20px; font-family:monospace;">
 
-  <!-- ROOT -->
-
-  <div id="app"></div>
-
-  <!-- APP -->
+  <h1>Architect OS Debug</h1>
+  <div id="log"></div>
 
   <script type="module">
 
-    // === CORE ===
-    import { initState } from "./core/state.js";
-
-    // === UI ===
-    import { renderLayout, getTab } from "./ui/layout.js";
-
-    // === VIEWS ===
-    import { renderDashboard } from "./views/dashboard.js";
-    import { renderMVS } from "./views/mvs.js";
-    import { renderFox } from "./views/fox.js";
-    import { renderStats } from "./views/stats.js";
-    import { renderTerminal } from "./views/terminal.js";
-    import { renderJournal } from "./views/journal.js";
-
-    // === MODULES ===
-    import "./modules/engine.js";
-    import "./modules/hud.js";
-    import "./modules/analytics.js";
-    import "./modules/aiCoach.js";
-    import "./modules/predictor.js";
-    import "./modules/missions.js";
-
-    // === INIT ===
-    initState();
-
-    // === ROUTER ===
-    window.renderApp = function () {
-      const tab = getTab();
-
-      let view = "";
-
-      if (tab === "dashboard") view = renderDashboard();
-      if (tab === "mvs") view = renderMVS();
-      if (tab === "fox") view = renderFox();
-      if (tab === "stats") view = renderStats();
-      if (tab === "terminal") view = renderTerminal();
-      if (tab === "journal") view = renderJournal();
-
-      document.getElementById("app").innerHTML =
-        renderLayout(view);
+    const log = (msg) => {
+      document.getElementById("log").innerHTML += "<div>" + msg + "</div>";
+      console.log(msg);
     };
 
-    // === FIRST RENDER ===
-    window.renderApp();
+    try {
+      log("Loading state...");
+      const stateModule = await import("./core/state.js");
 
-    // === SYSTEM LOOP ===
-    setInterval(() => {
-      window.renderApp();
-    }, 1000);
+      log("Loading layout...");
+      const layoutModule = await import("./ui/layout.js");
 
-  </script>
+      log("Loading views...");
+      await import("./views/dashboard.js");
+      await import("./views/mvs.js");
+      await import("./views/fox.js");
+      await import("./views/stats.js");
+      await import("./views/terminal.js");
+      await import("./views/journal.js");
 
-  <!-- SERVICE WORKER -->
+      log("Loading modules...");
+      await import("./modules/engine.js");
+      await import("./modules/hud.js");
+      await import("./modules/analytics.js");
+      await import("./modules/aiCoach.js");
+      await import("./modules/predictor.js");
+      await import("./modules/missions.js");
 
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js");
+      log("INIT...");
+      stateModule.initState();
+
+      log("SUCCESS — SYSTEM LOADED");
+
+    } catch (e) {
+      log("ERROR:");
+      log(e.message);
+      console.error(e);
     }
+
   </script>
 
 </body>
