@@ -34,6 +34,15 @@ export function renderLayout(content) {
           PANIC
         </button>
 
+        <select 
+          onchange="setPersonality(this.value)"
+          class="bg-black border border-white/20 text-xs px-2 py-1 rounded"
+        >
+          <option value="architect">Architect</option>
+          <option value="coach">Coach</option>
+          <option value="calm">Calm</option>
+        </select>
+
       </div>
 
       <div id="view">
