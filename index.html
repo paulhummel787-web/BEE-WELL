@@ -5,11 +5,15 @@
 <title>Architect OS — Bee Well</title>
 <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-body 
-   <div class="bg-blob"></div>
-<div class="bg-blob"></div> 
-    {
+<style> 
+   </style>
+
+<body class="p-6">
+
+<!-- 🌊 BACKGROUND BLOBS -->
+<div class="bg-blob"></div>
+<div class="bg-blob"></div>
+   {
     background:#0a0a0a;
     color:white;
     font-family: system-ui;
@@ -268,7 +272,29 @@ function log(msg){
 render();
 
 </script>
+<script>
 
+/* 🧠 SAFE CHECK (prevents crash if state missing) */
+if (typeof state !== "undefined") {
+
+    function applyStateColor(){
+        const w = state.wave || 70;
+
+        let color = 'green';
+
+        if(w < 30) color='blue';
+        else if(w < 50) color='purple';
+        else if(w < 70) color='yellow';
+        else if(w < 85) color='orange';
+        else color='green';
+
+        document.body.style.boxShadow = `inset 0 0 120px var(--${color})`;
+    }
+
+    setInterval(applyStateColor, 1000);
+}
+
+</script>
 </body>
 </html>
 <script>
