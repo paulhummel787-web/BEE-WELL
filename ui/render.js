@@ -1,50 +1,97 @@
 import { state } from "../core/state.js";
+import { renderLayout, getTab } from "./layout.js";
 
 export function render() {
+  window.renderApp();
+}
 
-  document.getElementById("app").innerHTML = `
-  <div class="space-y-4">
+window.renderApp = function () {
 
-    <div>
-      Wave: ${Math.round(state.wave)} | ${state.mode}
+  let content = "";
+
+  const tab = getTab();
+
+  if (tab === "dashboard") content = dashboard();
+  if (tab === "mvs") content = mvsView();
+  if (tab === "fox") content = foxView();
+  if (tab === "stats") content = statsView();
+
+  document.getElementById("app").innerHTML = renderLayout(content);
+};
+
+// ===== VIEWS =====
+
+function dashboard() {
+  return `
+    <div class="space-y-4">
+
+      <div>
+        <div>Wave: ${Math.round(state.wave)} (${state.mode})</div>
+        <div>Integrity: ${Math.round(state.integrity)}</div>
+        <div>Pressure: ${Math.round(state.pressure)}</div>
+      </div>
+
+      <div>
+        Level: ${state.level} | XP: ${state.xp}
+      </div>
+
+      <button onclick="window.startAudit()" class="bg-white text-black px-3 py-1">
+        Run Audit
+      </button>
+
     </div>
+  `;
+}
 
-    <div>
-      Integrity: ${Math.round(state.integrity)}
-    </div>
+function mvsView() {
+  return `
+    <div class="space-y-3">
 
-    <div>
-      Level: ${state.level} | XP: ${state.xp}
-    </div>
-
-    <input 
-      value="${state.fox || ""}" 
-      placeholder="Fox Target"
-      class="bg-black border p-2 w-full"
-      onchange="window.setFox(this.value)"
-    >
-
-    <div>
       ${state.mvs.map((m, i) => `
         <div onclick="window.toggleMVS(${i})" class="cursor-pointer">
           ${m.done ? "✔" : "•"} ${m.task}
         </div>
       `).join("")}
+
+      <button onclick="window.addMVS()" class="bg-white text-black px-3 py-1">
+        Add Step
+      </button>
+
     </div>
-
-    <button onclick="window.addMVS()" class="bg-white text-black px-3 py-1">
-      Add Step
-    </button>
-
-    <button onclick="window.completeFox()" class="bg-green-500 px-3 py-1">
-      Complete Fox
-    </button>
-
-  </div>
   `;
 }
 
-// ===== GLOBAL UI ACTIONS =====
+function foxView() {
+  return `
+    <div class="space-y-4">
+
+      <input 
+        value="${state.fox || ""}" 
+        placeholder="Main Target"
+        class="bg-black border p-2 w-full"
+        onchange="window.setFox(this.value)"
+      >
+
+      <button onclick="window.completeFox()" class="bg-green-500 px-3 py-1">
+        Complete
+      </button>
+
+    </div>
+  `;
+}
+
+function statsView() {
+  return `
+    <div class="space-y-2 text-sm">
+
+      <div>Achievements: ${state.achievements.join(", ")}</div>
+      <div>Streak: ${state.streak}</div>
+
+    </div>
+  `;
+}
+
+// ===== ACTIONS =====
 
 window.addMVS = function () {
   const t = prompt("Step:");
