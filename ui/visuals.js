@@ -1,29 +1,29 @@
 import { state } from "../core/state.js";
-import { registerModule } from "../core/state.js";
 
-const colorMap = {
-  blue: "#3b82f6",
-  purple: "#8b5cf6",
-  yellow: "#facc15",
-  red: "#ef4444",
-  green: "#10b981"
-};
+// APPLY VISUAL STATE
+function applyVisuals() {
 
-registerModule(function () {
-  const color = state.color;
-  const hex = colorMap[color];
+  const body = document.body;
 
-  // background tint
-  document.body.style.background = `radial-gradient(circle at center, ${hex}15, #000000)`;
+  // reset classes
+  body.classList.remove("blue","purple","yellow","red","green");
+  body.classList.remove("low","steady","sharp","overloaded");
 
-  // glow class
-  document.body.classList.remove(
-    "glow-blue",
-    "glow-purple",
-    "glow-yellow",
-    "glow-red",
-    "glow-green"
-  );
+  // apply color
+  body.classList.add(state.color);
 
-  document.body.classList.add(`glow-${color}`);
-});
+  // apply mode
+  body.classList.add(state.mode);
+
+  // ambient glow
+  const intensity = Math.round(state.wave);
+
+  body.style.boxShadow = `
+    inset 0 0 ${50 + intensity}px rgba(255,255,255,0.03)
+  `;
+}
+
+// LOOP HOOK
+setInterval(() => {
+  applyVisuals();
+}, 500);
