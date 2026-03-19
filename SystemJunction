@@ -1,0 +1,44 @@
+import React from 'react';
+import { SystemJunction, useSystem } from './SystemJunction';
+// We will build and import these components in the next steps:
+// import Navigation from './Navigation';
+// import Header from './Header';
+// import Home from './Home'; 
+
+const AppContent = () => {
+  const { theme, isSpiritualMode } = useSystem();
+
+  // Dynamic classes based on your root CSS variables
+  const themeClasses = theme === 'dark' 
+    ? 'bg-[#080808] text-[#f5f5f4]' 
+    : 'bg-[#fcfbf9] text-[#1c1917]';
+
+  return (
+    <div className={`min-h-screen pb-[120px] overflow-x-hidden font-sans antialiased transition-colors duration-500 ${themeClasses}`}>
+      
+      {/* Abstract background blobs for visual depth */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-amber-500/5 blur-[100px] animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* Main Content Wrapper */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8 pt-6">
+        {/* Components to be injected: */}
+        {/* <Header /> */}
+        {/* <Home /> */}
+      </div>
+
+      {/* <Navigation /> */}
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    // Wrapping the app in the SystemJunction provides state to all children
+    <SystemJunction>
+      <AppContent />
+    </SystemJunction>
+  );
+}
