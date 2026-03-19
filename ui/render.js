@@ -8,7 +8,6 @@ export function render() {
 window.renderApp = function () {
 
   let content = "";
-
   const tab = getTab();
 
   if (tab === "dashboard") content = dashboard();
@@ -30,6 +29,12 @@ function dashboard() {
       <div>Integrity: ${Math.round(state.integrity)}</div>
       <div>Pressure: ${Math.round(state.pressure)}</div>
       <div>Level: ${state.level} | XP: ${state.xp}</div>
+
+      <div class="border border-white/10 p-2">
+        <div class="text-xs opacity-50">Today's Fox</div>
+        <div>${state.daily?.fox || "None"}</div>
+        <div>${state.daily?.completed ? "✔ Completed" : ""}</div>
+      </div>
 
       <button onclick="window.startAudit()" class="bg-white text-black px-3 py-1">
         Run Audit
@@ -57,16 +62,25 @@ function mvsView() {
 function foxView() {
   return `
     <div class="space-y-4">
+
       <input 
-        value="${state.fox || ""}" 
-        placeholder="Main Target"
+        value="${state.daily?.fox || ""}" 
+        placeholder="Set ONE target"
         class="bg-black border p-2 w-full"
-        onchange="window.setFox(this.value)"
+        onchange="window.setDailyFox(this.value)"
       >
 
-      <button onclick="window.completeFox()" class="bg-green-500 px-3 py-1">
-        Complete
+      <button 
+        onclick="window.completeDailyFox()" 
+        class="bg-green-500 px-3 py-1"
+      >
+        Complete Target
       </button>
+
+      <div class="text-sm opacity-60">
+        Status: ${state.daily?.completed ? "✔ Completed" : "Pending"}
+      </div>
+
     </div>
   `;
 }
@@ -166,16 +180,4 @@ window.toggleMVS = function (i) {
     state.integrity += 5;
     state.xp += 5;
   }
-};
-
-window.setFox = function (v) {
-  state.fox = v;
-};
-
-window.completeFox = function () {
-  if (!state.fox) return;
-
-  state.integrity += 10;
-  state.xp += 10;
-  state.fox = null;
 };
