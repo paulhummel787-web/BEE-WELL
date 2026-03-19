@@ -1,42 +1,39 @@
 import { state } from "../core/state.js";
 import { renderLayout, getTab } from "./layout.js";
 
-let lastRenderKey = "";
+// cache DOM instead of full replace
+let mounted = false;
 
-// MAIN RENDER
 export function render() {
   window.renderApp();
 }
 
 window.renderApp = function () {
-
+  const root = document.getElementById("app");
   const tab = getTab();
 
-  const renderKey = JSON.stringify({
-    tab,
-    wave: Math.round(state.wave),
-    integrity: Math.round(state.integrity),
-    fox: state.daily?.fox,
-    completed: state.daily?.completed,
-    mvs: state.mvs?.length,
-    journal: state.journal?.length
-  });
+  // FIRST LOAD → full render
+  if (!mounted) {
+    root.innerHTML = renderLayout(getView(tab));
+    mounted = true;
+    return;
+  }
 
-  // prevent unnecessary re-render
-  if (renderKey === lastRenderKey) return;
-  lastRenderKey = renderKey;
-
-  let content = "";
-
-  if (tab === "dashboard") content = dashboard();
-  if (tab === "mvs") content = mvsView();
-  if (tab === "fox") content = foxView();
-  if (tab === "stats") content = statsView();
-  if (tab === "terminal") content = terminalView();
-  if (tab === "journal") content = journalView();
-
-  document.getElementById("app").innerHTML = renderLayout(content);
+  // UPDATE ONLY VALUES (NO REBUILD)
+  updateDashboard();
 };
+
+// ===== VIEW SWITCH =====
+
+function getView(tab) {
+  if (tab === "dashboard") return dashboard();
+  if (tab === "mvs") return mvsView();
+  if (tab === "fox") return foxView();
+  if (tab === "stats") return statsView();
+  if (tab === "terminal") return terminalView();
+  if (tab === "journal") return journalView();
+  return dashboard();
+}
 
 // ===== DASHBOARD =====
 
@@ -44,20 +41,33 @@ function dashboard() {
   return `
     <div class="space-y-4 glow ${state.color} energy">
 
-      <div class="text-lg">Wave: ${Math.round(state.wave)} (${state.mode})</div>
-      <div>Integrity: ${Math.round(state.integrity)}</div>
-      <div>Pressure: ${Math.round(state.pressure)}</div>
-      <div>Level: ${state.level} | XP: ${state.xp}</div>
+      <div class="text-lg">
+        Wave: <span id="wave-val"></span>
+        (<span id="mode-val"></span>)
+      </div>
+
+      <div>
+        Integrity: <span id="integrity-val"></span>
+      </div>
+
+      <div>
+        Pressure: <span id="pressure-val"></span>
+      </div>
+
+      <div>
+        Level: <span id="level-val"></span> |
+        XP: <span id="xp-val"></span>
+      </div>
 
       <div class="border border-white/10 p-3 rounded">
         <div class="text-xs opacity-50">Today's Fox</div>
-        <div class="text-lg">${state.daily?.fox || "None"}</div>
-        <div class="text-sm">${state.daily?.completed ? "✔ Completed" : ""}</div>
+        <div id="fox-val" class="text-lg"></div>
+        <div id="fox-status" class="text-sm"></div>
       </div>
 
       <div class="border border-white/10 p-3 rounded">
         <div class="text-xs opacity-50 mb-2">AI Suggestion</div>
-        <div>${state.suggestion || "Stabilize system first."}</div>
+        <div id="suggestion-val"></div>
       </div>
 
       <button onclick="window.startAudit()" class="bg-white text-black px-3 py-1 rounded">
@@ -68,7 +78,31 @@ function dashboard() {
   `;
 }
 
-// ===== MVS =====
+// ===== LIVE UPDATE (NO REFLOW) =====
+
+function updateDashboard() {
+  setText("wave-val", Math.round(state.wave));
+  setText("mode-val", state.mode);
+  setText("integrity-val", Math.round(state.integrity));
+  setText("pressure-val", Math.round(state.pressure));
+  setText("level-val", state.level);
+  setText("xp-val", state.xp);
+
+  setText("fox-val", state.daily?.fox || "None");
+  setText("fox-status", state.daily?.completed ? "✔ Completed" : "");
+
+  setText("suggestion-val", state.suggestion || "");
+}
+
+// helper
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el && el.innerText !== String(value)) {
+    el.innerText = value;
+  }
+}
+
+// ===== OTHER VIEWS (unchanged) =====
 
 function mvsView() {
   return `
@@ -86,12 +120,9 @@ function mvsView() {
   `;
 }
 
-// ===== FOX =====
-
 function foxView() {
   return `
     <div class="space-y-4 glow ${state.color}">
-
       <input 
         value="${state.daily?.fox || ""}" 
         placeholder="Set ONE target"
@@ -99,22 +130,16 @@ function foxView() {
         onchange="window.setDailyFox(this.value)"
       >
 
-      <button 
-        onclick="window.completeDailyFox()" 
-        class="bg-green-500 px-3 py-1 rounded"
-      >
+      <button onclick="window.completeDailyFox()" class="bg-green-500 px-3 py-1 rounded">
         Complete Target
       </button>
 
       <div class="text-sm opacity-60">
         Status: ${state.daily?.completed ? "✔ Completed" : "Pending"}
       </div>
-
     </div>
   `;
 }
-
-// ===== STATS =====
 
 function statsView() {
   return `
@@ -124,8 +149,6 @@ function statsView() {
     </div>
   `;
 }
-
-// ===== TERMINAL =====
 
 function terminalView() {
   return `
@@ -142,12 +165,9 @@ function terminalView() {
   `;
 }
 
-// ===== JOURNAL =====
-
 function journalView() {
   return `
     <div class="space-y-4">
-
       <textarea 
         id="journal-input"
         class="w-full bg-black border p-2 h-24 rounded"
@@ -166,7 +186,6 @@ function journalView() {
           </div>
         `).reverse().join("") || ""}
       </div>
-
     </div>
   `;
 }
@@ -178,7 +197,6 @@ window.saveJournal = function () {
   if (!val) return;
 
   window.addJournal(val);
-  window.renderApp();
 };
 
 window.handleTerminal = function (e) {
@@ -195,11 +213,6 @@ window.handleTerminal = function (e) {
 
   out.scrollTop = out.scrollHeight;
   e.target.value = "";
-};
-
-window.clearTerminal = function () {
-  const out = document.getElementById("terminal-output");
-  if (out) out.innerHTML = "";
 };
 
 window.addMVS = function () {
