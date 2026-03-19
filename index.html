@@ -80,243 +80,6 @@ filter:sepia(.25) contrast(.9) saturate(.9);
 <button onclick="Engine.route('logs')">Logs</button>
 <button onclick="Engine.route('doctrine')">Doctrine</button>
 </nav>
-
-<script>
-
-/* =========================
-   ENGINE
-========================= */
-
-const Engine = {
-
-state:{
-tab:'base',
-wave:70,
-logs:[],
-sanctuary:false,
-chapter:1
-},
-
-init(){
-this.load()
-this.tick()
-this.render()
-setInterval(()=>this.tick(),1000)
-setInterval(()=>this.save(),30000)
-},
-
-tick(){
-document.getElementById('clock').innerText =
-new Date().toLocaleTimeString()
-},
-
-route(tab){
-this.state.tab = tab
-this.render()
-},
-
-render(){
-const v = document.getElementById('view')
-
-if(this.state.sanctuary){
-v.innerHTML = Modules.sanctuary()
-return
-}
-
-v.innerHTML = Modules[this.state.tab]()
-},
-
-log(msg){
-this.state.logs.unshift(new Date().toLocaleTimeString()+" — "+msg)
-},
-
-panic(){
-this.log("PANIC TRIGGERED")
-Anchor.inject("identity")
-alert("Stabilize the pilot.")
-},
-
-toggleSanctuary(){
-this.state.sanctuary = !this.state.sanctuary
-document.body.classList.toggle('sanctuary')
-this.render()
-},
-
-save(){
-localStorage.setItem("pilot_system", JSON.stringify(this.state))
-},
-
-load(){
-const d = localStorage.getItem("pilot_system")
-if(d) this.state = JSON.parse(d)
-}
-
-}
-
-/* =========================
-   MODULES
-========================= */
-
-const Modules = {
-
-/* BASE */
-base(){
-return `
-<div class="space-y-4 fade">
-
-<div class="glass p-4 rounded">
-<h2 class="text-sm mb-2">Resiliency Wave: ${Engine.state.wave}%</h2>
-<input type="range" min="0" max="100" value="${Engine.state.wave}"
-oninput="Engine.state.wave=this.value;Engine.render();Anchor.checkWave()">
-</div>
-
-<div class="glass p-4 rounded">
-<h2 class="text-sm mb-2">MVS Protocol</h2>
-<button onclick="Engine.log('MVS executed')" class="text-xs">Execute Step</button>
-</div>
-
-</div>`
-},
-
-/* EXEC */
-exec(){
-return `
-<div class="space-y-4 fade">
-<div class="glass p-4">Exec Mode</div>
-
-<button onclick="Anchor.inject('strength')" class="text-xs">
-Need Strength
-</button>
-
-<button onclick="Anchor.inject('peace')" class="text-xs">
-Clear Mind
-</button>
-
-</div>`
-},
-
-/* GOV */
-gov(){
-return `
-<div class="space-y-4 fade">
-
-<div class="glass p-4">
-<h2 class="text-sm mb-2">Capacity</h2>
-<canvas id="chart"></canvas>
-</div>
-
-</div>
-`
-},
-
-/* LOGS */
-logs(){
-return `
-<div class="glass p-4 fade text-xs space-y-2">
-${Engine.state.logs.map(l=>`<div>${l}</div>`).join('')}
-</div>`
-},
-
-/* DOCTRINE */
-doctrine(){
-return Doctrine.render()
-},
-
-/* SANCTUARY */
-sanctuary(){
-return `
-<div class="fade text-center space-y-6">
-
-<h1 class="text-2xl">Sanctuary</h1>
-
-<p class="italic">${Doctrine.random()}</p>
-
-<button onclick="Anchor.inject('peace')" class="text-xs">
-Receive Peace
-</button>
-
-</div>`
-}
-
-}
-
-/* =========================
-   DOCTRINE (33 CHAPTERS)
-========================= */
-
-const Doctrine = {
-
-chapters:[
-...Array.from({length:33},(_,i)=>({
-id:i+1,
-title:`Chapter ${i+1}`,
-body:"The pilot stabilizes. The storm does not define direction."
-}))
-],
-
-render(){
-return `
-<div class="space-y-4 fade">
-${this.chapters.map(c=>`
-<div class="glass p-4 rounded">
-<h3 class="font-bold text-sm">${c.title}</h3>
-<p class="text-xs opacity-80">${c.body}</p>
-</div>`).join('')}
-</div>`
-},
-
-random(){
-return this.chapters[Math.floor(Math.random()*this.chapters.length)].body
-}
-
-}
-
-/* =========================
-   ANCHOR ENGINE (SCRIPTURE)
-========================= */
-
-const Anchor = {
-
-data:{
-
-identity:[
-["Psalm 139:14","I am fearfully and wonderfully made."],
-["Ephesians 1:4","I am chosen before the foundation."]
-],
-
-safety:[
-["Deuteronomy 31:8","I am never alone."],
-["Psalm 34:18","God is near to me."]
-],
-
-peace:[
-["2 Timothy 1:7","I have a sound mind."],
-["Philippians 4:7","Peace guards my mind."]
-],
-
-strength:[
-["Philippians 4:13","I can take the next step."],
-["Isaiah 40:31","My strength is renewed."]
-]
-
-},
-
-inject(type){
-const list = this.data[type]
-const item = list[Math.floor(Math.random()*list.length)]
-alert(item[1] + "\n— " + item[0])
-},
-
-checkWave(){
-if(Engine.state.wave < 30){
-this.inject("strength")
-}
-}
-
-}
-
-/* INIT */
-Engine.init()
 <script>
 
 /* =========================
@@ -574,31 +337,214 @@ Anchor.trigger('identity')
 
 }
 
+<script>
+
 /* =========================
-   DOCTRINE (REAL SEED)
+   ENGINE PATCH (ADD THIS)
+========================= */
+
+Engine.openChapter = function(id){
+Engine.state.chapter = id
+UI.openReader()
+}
+
+Engine.getDailyChapter = function(){
+const day = new Date().getDate()
+return (day % 33) + 1
+}
+
+/* =========================
+   DOCTRINE (FULL)
 ========================= */
 
 const Doctrine = {
 
-chapters:[
-"Peace is not found by escaping the storm, but by stabilizing the pilot.",
-"You are not the chaos you feel. You are the one observing it.",
-"God does not rush your healing. He walks with it.",
-"The storm reveals what the system cannot hide.",
-"Stillness is not weakness. It is alignment.",
-"... (expand to full 33)"
+chapters: [
+{ id:1,title:"The Storm Is Real",body:"The storm is not imagined. It is felt deeply, but it is not your end."},
+{ id:2,title:"You Are Not the Storm",body:"You are not your thoughts. You are the one observing them."},
+{ id:3,title:"Noise Is Not Truth",body:"Loud thoughts are not authoritative thoughts."},
+{ id:4,title:"The Body Remembers",body:"Your system carries memory. That does not mean you are broken."},
+{ id:5,title:"Fragmentation",body:"You are not lost. You are unintegrated."},
+{ id:6,title:"The Lie",body:"You are not a mistake. That voice is not truth."},
+{ id:7,title:"Emotional Heat",body:"Intensity distorts reality."},
+{ id:8,title:"Collapse",body:"When direction disappears, stabilize."},
+{ id:9,title:"Control",body:"Control is not safety."},
+{ id:10,title:"Abandonment",body:"You are not alone inside pain."},
+{ id:11,title:"Breaking Point",body:"This is exposure, not the end."},
+
+{ id:12,title:"There Is a Pilot",body:"There is still awareness within you."},
+{ id:13,title:"Identity",body:"You are given identity, not earning it."},
+{ id:14,title:"Fearfully Made",body:"You were designed intentionally."},
+{ id:15,title:"Not Alone",body:"God is with you in this moment."},
+{ id:16,title:"Carried",body:"You are being held together."},
+{ id:17,title:"Externalize",body:"You don’t have to carry it alone."},
+{ id:18,title:"One Step",body:"Only the next step matters."},
+{ id:19,title:"Strength",body:"Strength is supplied."},
+{ id:20,title:"Weakness",body:"Weakness is where power enters."},
+{ id:21,title:"Claimed",body:"You belong."},
+{ id:22,title:"Guarded Mind",body:"Peace protects your mind."},
+
+{ id:23,title:"Peace Position",body:"Peace is where you stand."},
+{ id:24,title:"No Rush",body:"Healing is not rushed."},
+{ id:25,title:"Stillness",body:"Stillness is strength."},
+{ id:26,title:"70% Life",body:"You were not built for constant strain."},
+{ id:27,title:"Quiet Clarity",body:"Truth arrives quietly."},
+{ id:28,title:"Begin Again",body:"You can always restart."},
+{ id:29,title:"Rebuild",body:"Nothing is wasted."},
+{ id:30,title:"Stability",body:"Stability is built slowly."},
+{ id:31,title:"Trust",body:"Growth is happening unseen."},
+{ id:32,title:"Not Alone",body:"You never were alone."},
+{ id:33,title:"The Storm Does Not Win",body:"This is not your ending."}
 ],
 
-random(){
-return this.chapters[Math.floor(Math.random()*this.chapters.length)]
+get(id){
+return this.chapters.find(c=>c.id===id)
+},
+
+daily(){
+return this.get(Engine.getDailyChapter())
 }
 
 }
 
-/* INIT */
-Engine.init()
+/* =========================
+   UI LAYER
+========================= */
+
+const UI = {
+
+openReader(){
+const c = Doctrine.get(Engine.state.chapter)
+
+const overlay = document.createElement("div")
+overlay.className = `
+fixed inset-0 bg-black/90 z-50 flex flex-col
+p-6 fade
+`
+
+overlay.innerHTML = `
+<div class="max-w-xl mx-auto w-full">
+
+<button onclick="this.parentElement.parentElement.remove()"
+class="mb-6 text-xs opacity-40">← Back</button>
+
+<h1 class="text-xl mb-4">${c.title}</h1>
+
+<p class="text-sm leading-relaxed opacity-80 mb-6">
+${c.body}
+</p>
+
+<button onclick="Anchor.matchChapter(${c.id})"
+class="text-xs opacity-40">Receive Anchor</button>
+
+</div>
+`
+
+document.body.appendChild(overlay)
+}
+
+}
+
+/* =========================
+   ANCHOR MATCHING
+========================= */
+
+Anchor.matchChapter = function(id){
+
+if(id <= 11) this.trigger("safety")
+else if(id <= 22) this.trigger("identity")
+else this.trigger("peace")
+
+}
+
+/* =========================
+   MODULE UPDATE
+========================= */
+
+Modules.doctrine = function(){
+
+const daily = Doctrine.daily()
+
+return `
+<div class="space-y-6 fade">
+
+<div class="glass p-5 rounded-2xl">
+<p class="text-xs opacity-40 mb-2">Daily Chapter</p>
+<h2 class="text-lg">${daily.title}</h2>
+<button onclick="Engine.openChapter(${daily.id})"
+class="text-xs opacity-50 mt-2">Read</button>
+</div>
+
+<div class="space-y-2">
+${Doctrine.chapters.map(c=>`
+<div onclick="Engine.openChapter(${c.id})"
+class="glass p-3 rounded-xl text-sm cursor-pointer hover:bg-white/5 transition">
+${c.id}. ${c.title}
+</div>
+`).join("")}
+</div>
+
+</div>
+`
+
+}
+
+/* =========================
+   STATE → CHAPTER LOGIC
+========================= */
+
+State.check = function(){
+
+const w = Engine.state.wave
+
+if(w < 15){
+Engine.state.chapter = 13
+Anchor.trigger("identity")
+}
+
+else if(w < 30){
+Engine.state.chapter = 18
+Anchor.trigger("strength")
+}
+
+else if(w > 70){
+Engine.state.chapter = 25
+}
+
+}
+
+/* =========================
+   SANCTUARY UPGRADE
+========================= */
+
+Sanctuary.render = function(){
+
+const c = Doctrine.daily()
+
+return `
+<div class="fade text-center pt-20 space-y-10">
+
+<p class="italic text-lg opacity-80">
+${c.body}
+</p>
+
+<button onclick="Engine.openChapter(${c.id})"
+class="text-xs opacity-40">
+Read Chapter
+</button>
+
+<button onclick="Anchor.trigger('peace')"
+class="text-xs opacity-30">
+Receive Peace
+</button>
+
+</div>
+`
+
+}
 
 </script>
+
 </script>
 
 </body>
