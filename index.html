@@ -1,20 +1,384 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="manifest" href="public/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Bee Well | Return</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bee Well Architect - Problem & Roadmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #f9fafb; height: 100vh; width: 100vw; overflow: hidden; }
-      #root { height: 100%; display: flex; flex-direction: column; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 280px;
+            }
+        }
+        .nav-link {
+            transition: color 0.2s, border-bottom 0.2s;
+        }
+        .nav-link:hover {
+            color: #0d9488;
+            border-bottom: 2px solid #0d9488;
+        }
+        .barrier-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .barrier-btn.active {
+            background-color: #0f766e;
+            color: white;
+            border-color: #0f766e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .timeline-node {
+            transition: background-color 0.3s;
+        }
+        .timeline-item:hover .timeline-node {
+            background-color: #0d9488;
+        }
     </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
-  </body>
+</head>
+<body class="antialiased">
+
+    <!-- Chosen Palette: Warm Neutrals with Teal and Amber Accents -->
+    <!-- Application Structure Plan: A single-page dashboard structured chronologically based on the user journey of understanding the report: 1. Hero/Intro (Setting context), 2. Cognitive Barriers (Interactive exploration of the problem space using buttons and dynamic text to prevent overwhelming the user), 3. Disorder Impact Analysis (Visualizing the data via Chart.js to show cumulative burden), 4. Project Roadmap (HTML timeline showing the solution's rollout), 5. Sources (Validation). This structured, progressive disclosure aids comprehension of complex mental health data without needing mirroring the original PDF layout. -->
+    <!-- Visualization & Content Choices: 1. Cognitive Barriers -> Goal: Organize/Inform -> Viz: Interactive Button Grid & Dynamic Text Panel -> Justification: Allows users to explore specific barriers at their own pace rather than reading a wall of text. 2. Disorder Impact -> Goal: Compare -> Viz: Bar Chart (Chart.js) -> Justification: Clearly illustrates which disorders carry the most cognitive barriers, highlighting the compounding struggles of ADHD. 3. Roadmap -> Goal: Process Flow -> Viz: CSS-styled vertical timeline -> Justification: Provides a clear chronological view of project phases without relying on unsupported SVG or Mermaid diagrams. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-teal-700 tracking-tight">&#10040; Bee Well Architect</span>
+                </div>
+                <div class="hidden sm:flex items-center space-x-8">
+                    <a href="#overview" class="nav-link text-slate-600 font-medium pb-1 border-b-2 border-transparent">Overview</a>
+                    <a href="#barriers" class="nav-link text-slate-600 font-medium pb-1 border-b-2 border-transparent">Cognitive Barriers</a>
+                    <a href="#analysis" class="nav-link text-slate-600 font-medium pb-1 border-b-2 border-transparent">Impact Analysis</a>
+                    <a href="#roadmap" class="nav-link text-slate-600 font-medium pb-1 border-b-2 border-transparent">Project Roadmap</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <section id="overview" class="bg-white rounded-2xl shadow-sm p-8 md:p-12 border border-slate-100">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">Navigating the Friction of Mental Healthcare</h1>
+                <p class="text-lg text-slate-600 leading-relaxed mb-8">
+                    The Bee Well Architect report identifies the critical cognitive and emotional barriers that prevent individuals with mental health conditions from successfully accessing care. When the healthcare system demands high executive function, those with ADHD, CPTSD, GAD, BPD, and Depression are often left paralyzed by the process itself. This interactive dashboard outlines the problem space and the proposed roadmap for a more accessible solution.
+                </p>
+                <a href="#barriers" class="inline-block bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-8 rounded-full transition duration-300">
+                    Explore the Barriers &#8595;
+                </a>
+            </div>
+        </section>
+
+        <section id="barriers" class="scroll-mt-20">
+            <div class="mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">The Five Cognitive Barriers</h2>
+                <p class="text-slate-600 max-w-4xl leading-relaxed">
+                    This section details the specific psychological friction points identified in the report. Select a barrier below to understand the internal struggle it causes and which specific mental health conditions are most likely to experience it. This interactive approach helps break down complex systemic issues into understandable, human experiences.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-5 flex flex-col space-y-3" id="barrier-buttons-container">
+                </div>
+
+                <div class="lg:col-span-7">
+                    <div class="bg-white rounded-xl shadow-md p-6 md:p-8 h-full border border-slate-200 flex flex-col justify-center">
+                        <div id="barrier-content" class="min-h-[250px]">
+                            <h3 class="text-xl font-bold text-slate-400 mb-4 text-center mt-12">Select a barrier from the list to view details</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis" class="scroll-mt-20 bg-slate-50 py-8 rounded-2xl">
+            <div class="mb-8 px-4 sm:px-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">Burden of Barriers by Diagnosis</h2>
+                <p class="text-slate-600 max-w-4xl leading-relaxed">
+                    The chart below visualizes the overlapping nature of these cognitive barriers. It highlights how certain conditions, particularly ADHD, compound multiple barriers (e.g., Brain Fog, Analysis Paralysis, and Emotional Hyper-Arousal simultaneously), making standard outreach processes exponentially more difficult.
+                </p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mx-4 sm:mx-6">
+                <div class="chart-container">
+                    <canvas id="disorderChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="scroll-mt-20">
+            <div class="mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-3">Solution Roadmap</h2>
+                <p class="text-slate-600 max-w-4xl leading-relaxed">
+                    To address these systemic barriers, the Bee Well Architect project proposes a phased development approach. The timeline below outlines the roughly 6-month trajectory from initial validation to the public release and iteration of the Minimum Viable Product (MVP) web application.
+                </p>
+            </div>
+
+            <div class="max-w-3xl mx-auto pl-4">
+                <div class="border-l-4 border-teal-500 pl-8 py-2 space-y-12">
+                    
+                    <div class="timeline-item relative">
+                        <div class="timeline-node absolute -left-[42px] bg-white border-4 border-teal-500 w-6 h-6 rounded-full top-1"></div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+                            <span class="text-sm font-bold tracking-wider text-teal-600 uppercase">Phase 1</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1 mb-2">Research & Validation</h3>
+                            <p class="text-slate-600 text-sm mb-3">Clinical definitions and user struggle mapping.</p>
+                            <div class="inline-block bg-slate-100 text-slate-600 px-3 py-1 rounded text-xs font-semibold">April 2026 (30 Days)</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item relative">
+                        <div class="timeline-node absolute -left-[42px] bg-white border-4 border-teal-500 w-6 h-6 rounded-full top-1"></div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+                            <span class="text-sm font-bold tracking-wider text-teal-600 uppercase">Phase 2</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1 mb-2">MVP Web Development & Beta</h3>
+                            <p class="text-slate-600 text-sm mb-3">Building the core platform focusing on low-friction task initiation and reducing analysis paralysis.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded text-xs font-semibold">Development: May 2026 (60 Days)</span>
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded text-xs font-semibold">Beta Testing (30 Days)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item relative">
+                        <div class="timeline-node absolute -left-[42px] bg-white border-4 border-teal-500 w-6 h-6 rounded-full top-1"></div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-100">
+                            <span class="text-sm font-bold tracking-wider text-teal-600 uppercase">Phase 3</span>
+                            <h3 class="text-xl font-bold text-slate-800 mt-1 mb-2">Launch & Iteration</h3>
+                            <p class="text-slate-600 text-sm mb-3">Public release followed by data-driven improvements based on user metrics.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded text-xs font-semibold">Public Release (30 Days)</span>
+                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded text-xs font-semibold">Collect Metrics/Improve (60 Days)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section id="resources" class="border-t border-slate-200 pt-8 pb-12">
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Clinical Sources & Citations</h3>
+            <div class="bg-slate-50 p-6 rounded-lg text-sm text-slate-600 space-y-3">
+                <p>&#9656; <strong class="text-slate-700">ADHD:</strong> National Institute of Mental Health (NIMH) - Attention-Deficit/Hyperactivity Disorder</p>
+                <p>&#9656; <strong class="text-slate-700">BPD:</strong> National Institute of Mental Health (NIMH) - Borderline Personality Disorder</p>
+                <p>&#9656; <strong class="text-slate-700">CPTSD:</strong> NHS - Complex PTSD (Post-traumatic stress disorder)</p>
+                <p>&#9656; <strong class="text-slate-700">GAD:</strong> Mayo Clinic - Generalized anxiety disorder</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const barriersData = [
+            {
+                id: 'barrier-1',
+                title: '1. The "Safety Mode" Brain Fog',
+                conditions: ['ADHD', 'CPTSD', 'GAD'],
+                description: 'When stress levels spike, the "thinking brain" (Prefrontal Cortex) shuts down to conserve energy, allowing the "survival brain" (Amygdala) to take over.',
+                struggle: 'You cannot find words, you forget what you are doing mid-task, and you feel "blank" when trying to explain yourself to a doctor or counselor.'
+            },
+            {
+                id: 'barrier-2',
+                title: '2. Analysis Paralysis',
+                conditions: ['ADHD', 'Depression', 'GAD'],
+                description: 'Decision fatigue sets in rapidly, making even minor, routine choices feel overwhelmingly significant or life-altering.',
+                struggle: 'Choosing which service to call or which form to fill out feels impossible. You end up doing nothing because the "correct" first step is not clear.'
+            },
+            {
+                id: 'barrier-3',
+                title: '3. Working Memory "Blackouts"',
+                conditions: ['CPTSD', 'ADHD'],
+                description: 'Severe disruption of the "mental scratchpad," making it difficult to hold immediate, short-term information necessary to complete a sequence of actions.',
+                struggle: 'You might have a great realization or a specific symptom you want to mention, but by the time you get on the phone or open an email, the thought is completely gone.'
+            },
+            {
+                id: 'barrier-4',
+                title: '4. Emotional Hyper-Arousal',
+                conditions: ['BPD', 'ADHD', 'CPTSD'],
+                description: 'The "No Brakes" feeling caused by a distinct lack of top-down emotional regulation, leading to intense, disproportionate reactions to stimuli.',
+                struggle: 'A small setback (like a busy signal or a confusing website) triggers an explosion of frustration or a total meltdown, making you want to give up on the whole process.'
+            },
+            {
+                id: 'barrier-5',
+                title: '5. The "Wall of Awful"',
+                conditions: ['Depression', 'ADHD'],
+                description: 'Severe difficulties with task initiation where the activation energy required to begin an action feels insurmountable.',
+                struggle: 'You know you need to call for outreach, but starting the task feels physically heavy and impossible to push through.'
+            }
+        ];
+
+        const disorderData = {
+            'ADHD': 5,
+            'CPTSD': 3,
+            'GAD': 3,
+            'Depression': 2,
+            'BPD': 1
+        };
+
+        function renderBarrierButtons() {
+            const container = document.getElementById('barrier-buttons-container');
+            barriersData.forEach((barrier, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'barrier-btn w-full text-left px-5 py-4 rounded-lg border border-slate-200 bg-white font-semibold text-slate-700 hover:bg-slate-50 hover:border-teal-300 focus:outline-none';
+                btn.textContent = barrier.title;
+                btn.onclick = () => selectBarrier(barrier.id, btn);
+                if(index === 0) {
+                    setTimeout(() => selectBarrier(barrier.id, btn), 100);
+                }
+                container.appendChild(btn);
+            });
+        }
+
+        function selectBarrier(id, buttonElement) {
+            document.querySelectorAll('.barrier-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            buttonElement.classList.add('active');
+
+            const barrier = barriersData.find(b => b.id === id);
+            const contentContainer = document.getElementById('barrier-content');
+            
+            const conditionsHtml = barrier.conditions.map(cond => 
+                `<span class="inline-block bg-teal-100 text-teal-800 px-3 py-1 rounded-full text-xs font-bold mr-2 mb-2 border border-teal-200">${cond}</span>`
+            ).join('');
+
+            contentContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">${barrier.title}</h3>
+                    <div class="mb-6">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Affected Conditions</h4>
+                        <div class="flex flex-wrap">${conditionsHtml}</div>
+                    </div>
+                    <div class="mb-6">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">The Mechanism</h4>
+                        <p class="text-slate-700 leading-relaxed">${barrier.description}</p>
+                    </div>
+                    <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                        <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">The User Struggle</h4>
+                        <p class="text-amber-900 font-medium italic">"${barrier.struggle}"</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('disorderChart').getContext('2d');
+            const labels = Object.keys(disorderData);
+            const dataValues = Object.values(disorderData);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Cognitive Barriers Present',
+                        data: dataValues,
+                        backgroundColor: [
+                            'rgba(15, 118, 110, 0.8)',
+                            'rgba(13, 148, 136, 0.6)',
+                            'rgba(20, 184, 166, 0.6)',
+                            'rgba(45, 212, 191, 0.6)',
+                            'rgba(94, 234, 212, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(15, 118, 110, 1)',
+                            'rgba(13, 148, 136, 1)',
+                            'rgba(20, 184, 166, 1)',
+                            'rgba(45, 212, 191, 1)',
+                            'rgba(94, 234, 212, 1)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: 'Inter', size: 14 },
+                            bodyFont: { family: 'Inter', size: 13 },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + ' distinct barriers to access';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 6,
+                            ticks: {
+                                stepSize: 1,
+                                font: { family: 'Inter' },
+                                color: '#64748b'
+                            },
+                            grid: {
+                                color: '#f1f5f9'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Barrier Count',
+                                color: '#475569',
+                                font: { family: 'Inter', weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { family: 'Inter', weight: 'bold' },
+                                color: '#334155'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBarrierButtons();
+            initChart();
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
 </html>
