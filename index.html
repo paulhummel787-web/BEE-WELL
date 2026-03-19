@@ -3111,3 +3111,268 @@ handleCmd = function(e){
 };
 
 </script>
+<script>
+
+/* =========================
+🧭 BEE WELL — CORE ENGINE
+========================= */
+
+const BEE_SYSTEM = {
+    audits: [],
+    bodyguards: [],
+    mvsHistory: []
+};
+
+
+/* =========================
+🚨 AUDIT SYSTEM (UPGRADED)
+========================= */
+
+const AUDITS = {
+
+    biological: {
+        title: "Biological Reset",
+        steps: [
+            "Drink water now.",
+            "Stand and stretch.",
+            "Take 5 slow breaths.",
+            "Check body tension.",
+            "Reset posture."
+        ]
+    },
+
+    mental: {
+        title: "Mental Reset",
+        steps: [
+            "Name your color state.",
+            "Drop the story.",
+            "Focus on the body.",
+            "Wait 90 seconds.",
+            "Return to one step."
+        ]
+    },
+
+    workflow: {
+        title: "Execution Reset",
+        steps: [
+            "Close distractions.",
+            "Identify ONE task.",
+            "Break into 1 step.",
+            "Start for 60 seconds.",
+            "Ignore outcome."
+        ]
+    }
+
+};
+
+let auditIndex = 0;
+let currentAudit = null;
+
+function startAudit(type){
+
+    currentAudit = AUDITS[type];
+    auditIndex = 0;
+
+    renderAudit();
+}
+
+function renderAudit(){
+
+    const v = document.getElementById("view");
+
+    const step = currentAudit.steps[auditIndex];
+    const isEnd = auditIndex === currentAudit.steps.length - 1;
+
+    v.innerHTML = `
+    <div class="glass p-10 rounded-3xl text-center fade max-w-lg mx-auto">
+
+        <p class="text-xs uppercase opacity-30 mb-2">${currentAudit.title}</p>
+
+        <h2 class="text-2xl font-light mb-8">${step}</h2>
+
+        <button onclick="${isEnd ? 'endAudit()' : 'nextAudit()'}"
+        class="px-8 py-3 bg-indigo-500 rounded-full text-xs tracking-widest">
+            ${isEnd ? "COMPLETE" : "NEXT"}
+        </button>
+
+        <div class="mt-6 text-xs opacity-40">
+            Step ${auditIndex + 1} / ${currentAudit.steps.length}
+        </div>
+
+    </div>
+    `;
+}
+
+function nextAudit(){
+    auditIndex++;
+    renderAudit();
+}
+
+function endAudit(){
+
+    BEE_SYSTEM.audits.push({
+        type: currentAudit.title,
+        time: new Date()
+    });
+
+    state.wave += 10;
+    render();
+}
+
+
+/* =========================
+⚡ MVS ENGINE (ACTION SYSTEM)
+========================= */
+
+function runMVS(){
+
+    const task = prompt("Enter ONE tiny step:");
+
+    if(!task) return;
+
+    BEE_SYSTEM.mvsHistory.push(task);
+
+    const v = document.getElementById("view");
+
+    v.innerHTML = `
+    <div class="glass p-10 text-center rounded-3xl fade">
+
+        <p class="text-xs opacity-40 mb-2">Minimum Viable Step</p>
+
+        <h2 class="text-xl mb-6">${task}</h2>
+
+        <button onclick="completeMVS()"
+        class="px-6 py-3 bg-green-500 rounded-full text-xs">
+            COMPLETE
+        </button>
+
+    </div>
+    `;
+}
+
+function completeMVS(){
+
+    state.wave += 5;
+    state.integrity += 2;
+
+    render();
+}
+
+
+/* =========================
+🛡️ BODYGUARDS SYSTEM
+========================= */
+
+const BODYGUARDS = [
+    "Perfectionist",
+    "Avoider",
+    "People Pleaser",
+    "Overthinker",
+    "Inner Critic"
+];
+
+function detectBodyguard(){
+
+    const guard = BODYGUARDS[Math.floor(Math.random() * BODYGUARDS.length)];
+
+    BEE_SYSTEM.bodyguards.push({
+        name: guard,
+        time: new Date()
+    });
+
+    const v = document.getElementById("view");
+
+    v.innerHTML = `
+    <div class="glass p-10 text-center rounded-3xl fade">
+
+        <p class="text-xs opacity-40 mb-2">Bodyguard Detected</p>
+
+        <h2 class="text-xl mb-4">${guard}</h2>
+
+        <p class="opacity-60 text-sm mb-6">
+        This is protection, not failure.
+        </p>
+
+        <button onclick="render()" 
+        class="px-6 py-3 bg-indigo-500 rounded-full text-xs">
+            RETURN TO PILOT
+        </button>
+
+    </div>
+    `;
+}
+
+
+/* =========================
+🖥️ COCKPIT VIEW
+========================= */
+
+function openCockpit(){
+
+    const v = document.getElementById("view");
+
+    v.innerHTML = `
+    <div class="space-y-6 fade max-w-xl mx-auto">
+
+        ${renderWaveMeter()}
+
+        <div class="grid grid-cols-2 gap-4">
+
+            <button onclick="startAudit('biological')" 
+            class="glass p-4 rounded-xl text-xs">BIO RESET</button>
+
+            <button onclick="startAudit('mental')" 
+            class="glass p-4 rounded-xl text-xs">MENTAL RESET</button>
+
+            <button onclick="startAudit('workflow')" 
+            class="glass p-4 rounded-xl text-xs">EXEC RESET</button>
+
+            <button onclick="runMVS()" 
+            class="glass p-4 rounded-xl text-xs">RUN MVS</button>
+
+        </div>
+
+        <button onclick="detectBodyguard()" 
+        class="w-full py-4 rounded-xl bg-white/10 text-xs">
+            DETECT BODYGUARD
+        </button>
+
+        <button onclick="openAnchors()" 
+        class="w-full py-4 rounded-xl bg-indigo-500 text-xs">
+            TRUTH SYSTEM
+        </button>
+
+    </div>
+    `;
+}
+
+
+/* =========================
+🧠 TERMINAL EXTENSION
+========================= */
+
+const prevCmd = handleCmd;
+
+handleCmd = function(e){
+
+    if(e.key === "Enter"){
+
+        const val = e.target.value;
+
+        if(val === "/audit"){
+            openCockpit();
+        }
+
+        if(val === "/mvs"){
+            runMVS();
+        }
+
+        if(val === "/guard"){
+            detectBodyguard();
+        }
+    }
+
+    prevCmd(e);
+};
+
+</script>
